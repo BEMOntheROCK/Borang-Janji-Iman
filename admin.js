@@ -11,7 +11,8 @@ import {
     getDocs, 
     query, 
     orderBy, 
-    deleteDoc 
+    deleteDoc,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // DOM Elements
@@ -171,6 +172,7 @@ function renderTable(records) {
             <td><small>${ansuranSummary}</small></td>
             <td>${dateFormatted}</td>
             <td>
+                <button class="btn btn-edit btn-sm" data-id="${data.id}">Kemaskini</button>
                 <button class="btn btn-delete btn-sm" data-id="${data.id}">Padam</button>
             </td>
         `;
@@ -191,6 +193,13 @@ function renderTable(records) {
             }
         });
     });
+
+    document.querySelectorAll(".btn-edit").forEach(button => {
+        button.addEventListener("click", (e) => {
+            const docId = e.target.getAttribute("data-id");
+            openEditModal(docId);
+        });
+    });
 }
 
 searchInput.addEventListener("input", (e) => {
@@ -201,6 +210,93 @@ searchInput.addEventListener("input", (e) => {
         (r.telefon && r.telefon.includes(term))
     );
     renderTable(filtered);
+});
+
+// --- Edit Modal Logic ---
+const editModal = document.getElementById("edit-modal");
+const editForm = document.getElementById("edit-form");
+const editAlert = document.getElementById("edit-alert");
+const editCancelBtn = document.getElementById("edit-cancel-btn");
+const editSaveBtn = document.getElementById("edit-save-btn");
+
+function showEditAlert(message, type = "danger") {
+    editAlert.textContent = message;
+    editAlert.className = `alert alert-${type}`;
+    editAlert.classList.remove("hidden");
+}
+
+function openEditModal(docId) {
+    const record = allRecords.find(r => r.id === docId);
+    if (!record) return;
+
+    editAlert.classList.add("hidden");
+    document.getElementById("edit-id").value = record.id;
+    document.getElementById("edit-nama").value = record.nama || "";
+    document.getElementById("edit-telefon").value = record.telefon || "";
+    document.getElementById("edit-status").value = record.statusJemaat || "Jemaat";
+    document.getElementById("edit-emel").value = record.emel || "";
+    document.getElementById("edit-jumlah").value = record.jumlahJanjiIman || 0;
+
+    const ans = record.ansuran || {};
+    document.getElementById("edit-jul2026").value = ans.jul2026 || "";
+    document.getElementById("edit-ogos2026").value = ans.ogos2026 || "";
+    document.getElementById("edit-sept2026").value = ans.sept2026 || "";
+    document.getElementById("edit-okt2026").value = ans.okt2026 || "";
+    document.getElementById("edit-nov2026").value = ans.nov2026 || "";
+    document.getElementById("edit-dis2026").value = ans.dis2026 || "";
+
+    editModal.classList.remove("hidden");
+}
+
+function closeEditModal() {
+    editModal.classList.add("hidden");
+}
+
+editCancelBtn.addEventListener("click", closeEditModal);
+editModal.addEventListener("click", (e) => {
+    if (e.target === editModal) closeEditModal();
+});
+
+editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const docId = document.getElementById("edit-id").value;
+    const nama = document.getElementById("edit-nama").value.trim();
+    const telefon = document.getElementById("edit-telefon").value.trim();
+    const statusJemaat = document.getElementById("edit-status").value;
+    const emel = document.getElementById("edit-emel").value.trim();
+    const jumlahJanjiIman = parseFloat(document.getElementById("edit-jumlah").value) || 0;
+
+    const ansuran = {
+        jul2026: parseFloat(document.getElementById("edit-jul2026").value) || 0,
+        ogos2026: parseFloat(document.getElementById("edit-ogos2026").value) || 0,
+        sept2026: parseFloat(document.getElementById("edit-sept2026").value) || 0,
+        okt2026: parseFloat(document.getElementById("edit-okt2026").value) || 0,
+        nov2026: parseFloat(document.getElementById("edit-nov2026").value) || 0,
+        dis2026: parseFloat(document.getElementById("edit-dis2026").value) || 0,
+    };
+
+    if (!nama || !telefon || !emel || !statusJemaat || jumlahJanjiIman <= 0) {
+        showEditAlert("Sila lengkapkan semua maklumat wajib dengan betul.", "danger");
+        return;
+    }
+
+    editSaveBtn.disabled = true;
+    editSaveBtn.textContent = "Menyimpan...";
+
+    try {
+        await updateDoc(doc(db, "pendaftaran", docId), {
+            nama, telefon, emel, statusJemaat, jumlahJanjiIman, ansuran
+        });
+        closeEditModal();
+        loadRegistrationData();
+    } catch (err) {
+        console.error("Ralat mengemaskini rekod:", err);
+        showEditAlert("Ralat semasa menyimpan perubahan. Sila cuba lagi.", "danger");
+    } finally {
+        editSaveBtn.disabled = false;
+        editSaveBtn.textContent = "Simpan Perubahan";
+    }
 });
 
 function escapeHtml(str) {

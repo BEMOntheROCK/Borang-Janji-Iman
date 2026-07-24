@@ -76,9 +76,53 @@
                     <!-- KOMITMEN KEWANGAN JANJI IMAN -->
                     <div class="form-section-title">2. Jumlah Janji Iman & Pecahan Ansuran Bulanan (RM)</div>
 
-                    <div class="form-group highlight-input">
-                        <label for="jumlahJanjiIman">Jumlah Keseluruhan Janji Iman (RM)</label>
-                        <input type="number" id="jumlahJanjiIman" name="jumlahJanjiIman" min="1" step="0.01" placeholder="Cth: 6000.00" required>
+                    <label class="section-sublabel">Pilih Jumlah Janji Iman</label>
+                    <div class="tier-grid" id="tier-grid">
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="10000">
+                            <span>RM 10,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="9000">
+                            <span>RM 9,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="8000">
+                            <span>RM 8,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="7000">
+                            <span>RM 7,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="6000">
+                            <span>RM 6,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="5000">
+                            <span>RM 5,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="4000">
+                            <span>RM 4,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="3000">
+                            <span>RM 3,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="2000">
+                            <span>RM 2,000.00</span>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="1000">
+                            <span>RM 1,000.00</span>
+                        </label>
+                        <label class="tier-option tier-custom">
+                            <input type="radio" name="tier" value="custom" id="tier-custom-radio">
+                            <span>Lain-lain (RM):</span>
+                            <input type="number" id="jumlahJanjiIman" name="jumlahJanjiIman" min="1" step="0.01" placeholder="Cth: 6500.00" disabled>
+                        </label>
                     </div>
 
                     <label class="section-sublabel">Pecahan Ansuran Bulanan (Julai - Disember 2026):</label>

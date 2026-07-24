@@ -212,6 +212,63 @@ body {
     }
 }
 
+.tier-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tier-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: #fff;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.tier-option:has(input:checked) {
+    border-color: var(--primary-color);
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+.tier-option input[type="radio"] {
+    width: auto;
+    accent-color: var(--primary-color);
+}
+
+.tier-custom {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+}
+
+.tier-custom input[type="number"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+}
+
+.tier-custom input[type="number"]:disabled {
+    background-color: #f1f5f9;
+    color: var(--text-muted);
+}
+
+@media (max-width: 500px) {
+    .tier-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .month-input label {
     font-size: 0.75rem;
     color: var(--text-muted);
@@ -260,6 +317,63 @@ body {
     padding: 6px 10px;
     font-size: 0.8rem;
     width: auto;
+    margin-right: 6px;
+}
+
+.btn-edit {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-edit:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+/* --- Modal Kemaskini --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.modal-box {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: var(--shadow);
+}
+
+.modal-box h2 {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.modal-actions .btn {
+    width: auto;
+    flex: 1;
 }
 
 .alert {

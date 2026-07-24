@@ -18,6 +18,31 @@ function showAlert(message, type = "success") {
     }, 6000);
 }
 
+// Tier Selection Logic
+const tierRadios = document.querySelectorAll('input[name="tier"]');
+const customAmountInput = document.getElementById("jumlahJanjiIman");
+
+tierRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+        if (radio.value === "custom") {
+            customAmountInput.disabled = false;
+            customAmountInput.focus();
+        } else {
+            customAmountInput.disabled = true;
+            customAmountInput.value = "";
+        }
+    });
+});
+
+function getSelectedAmount() {
+    const selected = document.querySelector('input[name="tier"]:checked');
+    if (!selected) return 0;
+    if (selected.value === "custom") {
+        return parseFloat(customAmountInput.value) || 0;
+    }
+    return parseFloat(selected.value) || 0;
+}
+
 // Form Submit Handler
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -26,7 +51,7 @@ form.addEventListener("submit", async (e) => {
     const telefon = document.getElementById("telefon").value.trim();
     const emel = document.getElementById("emel").value.trim();
     const statusJemaat = document.getElementById("statusJemaat").value;
-    const jumlahJanjiIman = parseFloat(document.getElementById("jumlahJanjiIman").value) || 0;
+    const jumlahJanjiIman = getSelectedAmount();
 
     // Monthly Installment Breakdown
     const ansuran = {
@@ -39,7 +64,7 @@ form.addEventListener("submit", async (e) => {
     };
 
     if (!nama || !telefon || !emel || !statusJemaat || jumlahJanjiIman <= 0) {
-        showAlert("Sila isi maklumat nama, telefon, emel, status dan jumlah Janji Iman yang sah.", "danger");
+        showAlert("Sila isi maklumat nama, telefon, emel, status dan pilih/isi jumlah Janji Iman yang sah.", "danger");
         return;
     }
 
@@ -59,6 +84,7 @@ form.addEventListener("submit", async (e) => {
 
         showAlert("Borang Janji Iman anda telah berjaya dihantar! Terima kasih atas sokongan anda.", "success");
         form.reset();
+        customAmountInput.disabled = true;
     } catch (error) {
         console.error("Ralat semasa menyimpan:", error);
         showAlert("Berlaku ralat semasa menghantar borang. Sila cuba lagi.", "danger");
