@@ -3,46 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borang Pendaftaran</title>
+    <title>Borang Janji Iman</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container container-medium">
         <header class="header">
-            <h1>Borang Pendaftaran</h1>
-            <p>Sila isi maklumat anda di bawah untuk membuat pendaftaran.</p>
+            <h1>Borang Janji Iman</h1>
+            <p>Sila baca panduan di bawah sebelum melengkapkan maklumat pendaftaran anda.</p>
         </header>
 
-        <main class="card">
-            <div id="alert-box" class="alert hidden"></div>
+        <main class="card-stack">
+            <!-- SEKSYEN 1: Perhatian & Panduan Mengisi Borang -->
+            <section class="card guideline-card">
+                <h2>Perhatian & Panduan Mengisi Borang Janji Iman</h2>
+                <ul class="guideline-list">
+                    <li>
+                        <strong>Komitmen Peribadi:</strong> Borang ini merupakan ikrar dan komitmen ikhlas anda dalam menyokong perkhidmatan dan pelan yang ditetapkan.
+                    </li>
+                    <li>
+                        <strong>Maklumat Tepat:</strong> Sila pastikan semua butiran peribadi (Nama Penuh, Nombor Telefon, dan E-mel) diisi dengan betul bagi memudahkan urusan rekod dan perhubungan.
+                    </li>
+                    <li>
+                        <strong>Status Jemaat:</strong> Sila pilih status keahlian anda sama ada anda adalah Jemaat berdaftar atau Bukan Jemaat.
+                    </li>
+                    <li>
+                        <strong>Kerahsiaan Data:</strong> Segala maklumat yang anda serahkan adalah <strong>SULIT</strong> dan hanya akan digunakan oleh pihak pentadbir bagi tujuan rekod dalaman.
+                    </li>
+                </ul>
+            </section>
 
-            <form id="registration-form">
-                <div class="form-group">
-                    <label for="nama">Nama Penuh</label>
-                    <input type="text" id="nama" name="nama" placeholder="Cth: Ahmad bin Abdullah" required>
-                </div>
+            <!-- SEKSYEN 2: Input Data & Borang Utamakan -->
+            <section class="card form-card">
+                <h2>Borang Pendaftaran & Maklumat Pemohon</h2>
+                
+                <div id="alert-box" class="alert hidden"></div>
 
-                <div class="form-group">
-                    <label for="telefon">Nombor Telefon</label>
-                    <input type="tel" id="telefon" name="telefon" placeholder="Cth: 0123456789" required>
-                </div>
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="nama">Nama Penuh</label>
+                        <input type="text" id="nama" name="nama" placeholder="Cth: Ahmad bin Abdullah / John Doe" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="emel">Alamat E-mel</label>
-                    <input type="email" id="emel" name="emel" placeholder="Cth: ahmad@example.com" required>
-                </div>
+                    <div class="form-group">
+                        <label for="telefon">Nombor Telefon</label>
+                        <input type="tel" id="telefon" name="telefon" placeholder="Cth: 0123456789" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="statusJemaat">Status Jemaat</label>
-                    <select id="statusJemaat" name="statusJemaat" required>
-                        <option value="" disabled selected>-- Sila Pilih Status --</option>
-                        <option value="Ya">Ya (Jemaat)</option>
-                        <option value="Bukan">Bukan Jemaat</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label for="emel">Alamat E-mel</label>
+                        <input type="email" id="emel" name="emel" placeholder="Cth: nama@example.com" required>
+                    </div>
 
-                <button type="submit" id="submit-btn" class="btn btn-primary">Hantar Pendaftaran</button>
-            </form>
+                    <div class="form-group">
+                        <label for="statusJemaat">Status Jemaat</label>
+                        <select id="statusJemaat" name="statusJemaat" required>
+                            <option value="" disabled selected>-- Sila Pilih Status --</option>
+                            <option value="Ya">Ya (Jemaat)</option>
+                            <option value="Bukan">Bukan Jemaat</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn btn-primary">Hantar Janji Iman</button>
+                </form>
+            </section>
         </main>
 
         <footer class="footer">

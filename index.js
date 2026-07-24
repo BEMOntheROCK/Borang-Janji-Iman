@@ -59,13 +59,13 @@ form.addEventListener("submit", async (e) => {
             createdAt: serverTimestamp()
         });
 
-        showAlert("Pendaftaran anda telah berjaya disimpan! Terima kasih.", "success");
+        showAlert("Borang Janji Iman anda telah berjaya disimpan! Terima kasih.", "success");
         form.reset();
     } catch (error) {
         console.error("Ralat semasa menyimpan pendaftaran:", error);
-        showAlert("Ralat berlaku semasa menghantar pendaftaran. Sila cuba lagi.", "danger");
+        showAlert("Ralat berlaku semasa menghantar borang. Sila cuba lagi.", "danger");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Hantar Pendaftaran";
+        submitBtn.textContent = "Hantar Janji Iman";
     }
 });
