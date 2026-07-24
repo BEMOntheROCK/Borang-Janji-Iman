@@ -118,24 +118,27 @@ body {
     border-left: 5px solid var(--primary-color);
 }
 
-.guideline-list {
-    list-style: none;
-    padding-left: 0;
+.guideline-text {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+    color: #334155;
+    line-height: 1.6;
 }
 
-.guideline-list li {
-    position: relative;
+.guideline-ol {
     padding-left: 20px;
+    margin-bottom: 0;
+}
+
+.guideline-ol li {
     margin-bottom: 10px;
     font-size: 0.9rem;
+    color: #334155;
+    line-height: 1.6;
 }
 
-.guideline-list li::before {
-    content: "•";
-    position: absolute;
-    left: 4px;
-    color: var(--primary-color);
-    font-weight: bold;
+.guideline-ol li:last-child {
+    margin-bottom: 0;
 }
 
 /* --- Form Fields & Grids --- */
