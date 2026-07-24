@@ -27,7 +27,7 @@
 
 body {
     background-color: var(--bg-color);
-    background-image: url("assets/background.png");
+    background-image: url("backgroung.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -150,7 +150,7 @@ body {
 .form-section-title {
     font-weight: 700;
     font-size: 1rem;
-    color: var(--primary-color);
+    color: var(--text-color);
     border-bottom: 2px solid #e2e8f0;
     padding-bottom: 6px;
     margin: 20px 0 16px 0;
@@ -300,12 +300,12 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
+    background-color: #eca154;
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-hover);
+    background-color: #d68f45;
 }
 
 .btn-large {
