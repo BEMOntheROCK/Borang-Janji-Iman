@@ -6,7 +6,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
     doc, 
-    getDoc, 
     collection, 
     getDocs, 
     query, 
@@ -43,26 +42,10 @@ function showLoginAlert(message, type = "danger") {
 // Check Admin Authentication Status
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        try {
-            const adminDocRef = doc(db, "admins", user.uid);
-            const adminDocSnap = await getDoc(adminDocRef);
-
-            if (adminDocSnap.exists()) {
-                loginSection.classList.add("hidden");
-                dashboardSection.classList.remove("hidden");
-                adminEmailDisplay.textContent = user.email;
-                loadRegistrationData();
-            } else {
-                await signOut(auth);
-                showLoginAlert("Akses ditolak. Akaun anda tidak mempunyai peranan pentadbir.", "danger");
-                loginSection.classList.remove("hidden");
-                dashboardSection.classList.add("hidden");
-            }
-        } catch (error) {
-            console.error("Ralat menyemak akses pentadbir:", error);
-            await signOut(auth);
-            showLoginAlert("Ralat semasa menyemak kebenaran pentadbir.", "danger");
-        }
+        loginSection.classList.add("hidden");
+        dashboardSection.classList.remove("hidden");
+        adminEmailDisplay.textContent = user.email;
+        loadRegistrationData();
     } else {
         loginSection.classList.remove("hidden");
         dashboardSection.classList.add("hidden");
