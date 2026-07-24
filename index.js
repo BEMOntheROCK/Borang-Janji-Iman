@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase Configuration
+// Konfigurasi Firebase Anda
 const firebaseConfig = {
   apiKey: "AIzaSyDvZ2lRf7sNJEdlLwED_SpHCHVC8T-6guY",
   authDomain: "borang-janji-iman.firebaseapp.com",
@@ -25,11 +25,11 @@ function showAlert(message, type = "success") {
     alertBox.textContent = message;
     alertBox.className = `alert alert-${type}`;
     alertBox.classList.remove("hidden");
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
-    // Sembunyikan selepas 5 saat
     setTimeout(() => {
         alertBox.classList.add("hidden");
-    }, 5000);
+    }, 6000);
 }
 
 // Pengendali Hantar Borang
@@ -40,13 +40,23 @@ form.addEventListener("submit", async (e) => {
     const telefon = document.getElementById("telefon").value.trim();
     const emel = document.getElementById("emel").value.trim();
     const statusJemaat = document.getElementById("statusJemaat").value;
+    const jumlahJanjiIman = parseFloat(document.getElementById("jumlahJanjiIman").value) || 0;
 
-    if (!nama || !telefon || !emel || !statusJemaat) {
-        showAlert("Sila lengkapkan semua medan ruangan di atas.", "danger");
+    // Ambil Pecahan Bulanan
+    const ansuran = {
+        jul2026: parseFloat(document.getElementById("jul2026").value) || 0,
+        ogos2026: parseFloat(document.getElementById("ogos2026").value) || 0,
+        sept2026: parseFloat(document.getElementById("sept2026").value) || 0,
+        okt2026: parseFloat(document.getElementById("okt2026").value) || 0,
+        nov2026: parseFloat(document.getElementById("nov2026").value) || 0,
+        dis2026: parseFloat(document.getElementById("dis2026").value) || 0,
+    };
+
+    if (!nama || !telefon || !emel || !statusJemaat || jumlahJanjiIman <= 0) {
+        showAlert("Sila isi maklumat nama, telefon, emel, status dan jumlah Janji Iman yang sah.", "danger");
         return;
     }
 
-    // Tukar status butang semasa proses menyimpan
     submitBtn.disabled = true;
     submitBtn.textContent = "Sedang Dihantar...";
 
@@ -56,14 +66,16 @@ form.addEventListener("submit", async (e) => {
             telefon: telefon,
             emel: emel,
             statusJemaat: statusJemaat,
+            jumlahJanjiIman: jumlahJanjiIman,
+            ansuran: ansuran,
             createdAt: serverTimestamp()
         });
 
-        showAlert("Borang Janji Iman anda telah berjaya disimpan! Terima kasih.", "success");
+        showAlert("Borang Janji Iman anda telah berjaya dihantar! Terima kasih atas sokongan anda.", "success");
         form.reset();
     } catch (error) {
-        console.error("Ralat semasa menyimpan pendaftaran:", error);
-        showAlert("Ralat berlaku semasa menghantar borang. Sila cuba lagi.", "danger");
+        console.error("Ralat semasa menyimpan:", error);
+        showAlert("Berlaku ralat semasa menghantar borang. Sila cuba lagi.", "danger");
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Hantar Janji Iman";

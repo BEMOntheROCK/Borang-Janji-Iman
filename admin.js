@@ -18,12 +18,12 @@ import {
 
 // Konfigurasi Firebase Anda
 const firebaseConfig = {
-    apiKey: "GANTIKAN_DENGAN_API_KEY_ANDA",
-    authDomain: "PROJECT_ID.firebaseapp.com",
-    projectId: "PROJECT_ID",
-    storageBucket: "PROJECT_ID.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+  apiKey: "AIzaSyDvZ2lRf7sNJEdlLwED_SpHCHVC8T-6guY",
+  authDomain: "borang-janji-iman.firebaseapp.com",
+  projectId: "borang-janji-iman",
+  storageBucket: "borang-janji-iman.firebasestorage.app",
+  messagingSenderId: "147857124075",
+  appId: "1:147857124075:web:4c4c9f30d7a6d2e650acae"
 };
 
 // Inisialisasi Firebase
@@ -43,35 +43,32 @@ const pendaftaranList = document.getElementById("pendaftaran-list");
 const searchInput = document.getElementById("search-input");
 
 // Elemen Statistik
-const statTotal = document.getElementById("stat-total");
+const statTotalAmount = document.getElementById("stat-total-amount");
+const statTotalCount = document.getElementById("stat-total-count");
 const statJemaat = document.getElementById("stat-jemaat");
-const statBukan = document.getElementById("stat-bukan");
+const statPelawat = document.getElementById("stat-pelawat");
 
 let allRecords = [];
 
-// Tunjuk Amaran Log Masuk
 function showLoginAlert(message, type = "danger") {
     loginAlert.textContent = message;
     loginAlert.className = `alert alert-${type}`;
     loginAlert.classList.remove("hidden");
 }
 
-// Semak Status Pengesahan Pengguna
+// Semak Pengesahan Admin
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Semak sama ada peranan pengguna wujud dalam koleksi 'admins'
         try {
             const adminDocRef = doc(db, "admins", user.uid);
             const adminDocSnap = await getDoc(adminDocRef);
 
             if (adminDocSnap.exists()) {
-                // Pengguna adalah pentadbir sah
                 loginSection.classList.add("hidden");
                 dashboardSection.classList.remove("hidden");
                 adminEmailDisplay.textContent = user.email;
                 loadRegistrationData();
             } else {
-                // Bukan pentadbir
                 await signOut(auth);
                 showLoginAlert("Akses ditolak. Akaun anda tidak mempunyai peranan pentadbir.", "danger");
                 loginSection.classList.remove("hidden");
@@ -88,7 +85,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Pengendali Borang Log Masuk
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("admin-email").value.trim();
@@ -107,7 +103,6 @@ loginForm.addEventListener("submit", async (e) => {
     }
 });
 
-// Log Keluar
 logoutBtn.addEventListener("click", async () => {
     try {
         await signOut(auth);
@@ -117,9 +112,8 @@ logoutBtn.addEventListener("click", async () => {
     }
 });
 
-// Memuatkan Data Pendaftaran dari Firestore
 async function loadRegistrationData() {
-    pendaftaranList.innerHTML = `<tr><td colspan="7" class="text-center">Sedang memuatkan data...</td></tr>`;
+    pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center">Sedang memuatkan data...</td></tr>`;
 
     try {
         const q = query(collection(db, "pendaftaran"), orderBy("createdAt", "desc"));
@@ -137,25 +131,31 @@ async function loadRegistrationData() {
         renderTable(allRecords);
     } catch (error) {
         console.error("Ralat memuatkan data:", error);
-        pendaftaranList.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Gagal memuatkan data pendaftaran.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
     }
 }
 
-// Kemaskini Kad Statistik
 function updateStatistics(records) {
-    const total = records.length;
-    const jemaatCount = records.filter(r => r.statusJemaat === "Ya").length;
-    const bukanCount = total - jemaatCount;
+    const totalCount = records.length;
+    let totalSum = 0;
+    let jemaatCount = 0;
+    let pelawatCount = 0;
 
-    statTotal.textContent = total;
+    records.forEach(r => {
+        totalSum += Number(r.jumlahJanjiIman || 0);
+        if (r.statusJemaat === "Jemaat") jemaatCount++;
+        else pelawatCount++;
+    });
+
+    statTotalAmount.textContent = `RM ${totalSum.toLocaleString('ms-MY', { minimumFractionDigits: 2 })}`;
+    statTotalCount.textContent = totalCount;
     statJemaat.textContent = jemaatCount;
-    statBukan.textContent = bukanCount;
+    statPelawat.textContent = pelawatCount;
 }
 
-// Papar Data ke dalam Jadual
 function renderTable(records) {
     if (records.length === 0) {
-        pendaftaranList.innerHTML = `<tr><td colspan="7" class="text-center">Tiada rekod pendaftaran ditemui.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center">Tiada rekod ditemui.</td></tr>`;
         return;
     }
 
@@ -163,27 +163,29 @@ function renderTable(records) {
     records.forEach((data, index) => {
         const tr = document.createElement("tr");
 
-        // Format Tarikh
         let dateFormatted = "N/A";
         if (data.createdAt && data.createdAt.toDate) {
             dateFormatted = data.createdAt.toDate().toLocaleDateString("ms-MY", {
                 day: "2-digit",
                 month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
+                year: "numeric"
             });
         }
 
-        const isJemaat = data.statusJemaat === "Ya";
+        const isJemaat = data.statusJemaat === "Jemaat";
         const badgeClass = isJemaat ? "badge-success" : "badge-secondary";
+        const totalRM = Number(data.jumlahJanjiIman || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 });
+
+        const ans = data.ansuran || {};
+        const ansuranSummary = `Jul: ${ans.jul2026||0} | Ogos: ${ans.ogos2026||0} | Sept: ${ans.sept2026||0} | Okt: ${ans.okt2026||0} | Nov: ${ans.nov2026||0} | Dis: ${ans.dis2026||0}`;
 
         tr.innerHTML = `
             <td>${index + 1}</td>
             <td><strong>${escapeHtml(data.nama || "-")}</strong></td>
-            <td>${escapeHtml(data.telefon || "-")}</td>
-            <td>${escapeHtml(data.emel || "-")}</td>
+            <td>${escapeHtml(data.telefon || "-")}<br><small>${escapeHtml(data.emel || "-")}</small></td>
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
+            <td><strong>RM ${totalRM}</strong></td>
+            <td><small>${ansuranSummary}</small></td>
             <td>${dateFormatted}</td>
             <td>
                 <button class="btn btn-delete btn-sm" data-id="${data.id}">Padam</button>
@@ -193,7 +195,6 @@ function renderTable(records) {
         pendaftaranList.appendChild(tr);
     });
 
-    // Tambah fungsi Padam
     document.querySelectorAll(".btn-delete").forEach(button => {
         button.addEventListener("click", async (e) => {
             const docId = e.target.getAttribute("data-id");
@@ -202,15 +203,13 @@ function renderTable(records) {
                     await deleteDoc(doc(db, "pendaftaran", docId));
                     loadRegistrationData();
                 } catch (err) {
-                    alert("Ralat semasa memadam rekod.");
-                    console.error(err);
+                    alert("Ralat semasa memadam.");
                 }
             }
         });
     });
 }
 
-// Fungsi Cari / Tapis Rekod
 searchInput.addEventListener("input", (e) => {
     const term = e.target.value.toLowerCase();
     const filtered = allRecords.filter(r => 
@@ -221,7 +220,6 @@ searchInput.addEventListener("input", (e) => {
     renderTable(filtered);
 });
 
-// Pembersihan Aksara HTML
 function escapeHtml(str) {
     return String(str)
         .replace(/&/g, "&amp;")

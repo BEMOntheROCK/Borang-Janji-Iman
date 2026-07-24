@@ -3,51 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borang Janji Iman</title>
+    <title>Janji Iman Projek Bangunan Baharu</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container container-medium">
-        <header class="header">
-            <h1>Borang Janji Iman</h1>
-            <p>Sila baca panduan di bawah sebelum melengkapkan maklumat pendaftaran anda.</p>
+        
+        <!-- HEADER & TARGET BANNER -->
+        <header class="header form-header-banner">
+            <h1 class="text-red">JANJI IMAN PROJEK BANGUNAN BAHARU</h1>
+            <h2 class="text-red">FASA 1 ( JULAI - DISEMBER 2026 )</h2>
+            <div class="target-badge">
+                JUMLAH SASARAN: RM 500,000.00
+            </div>
         </header>
 
         <main class="card-stack">
-            <!-- SEKSYEN 1: Perhatian & Panduan Mengisi Borang -->
+            <!-- SEKSYEN 1: Perhatian & Panduan -->
             <section class="card guideline-card">
-                <h2>Perhatian & Panduan Mengisi Borang Janji Iman</h2>
+                <h3>Perhatian & Panduan Mengisi Borang Janji Iman</h3>
                 <ul class="guideline-list">
                     <li>
-                        <strong>Komitmen Peribadi:</strong> Borang ini merupakan ikrar dan komitmen ikhlas anda dalam menyokong perkhidmatan dan pelan yang ditetapkan.
+                        <strong>Komitmen Peribadi:</strong> Borang ini merupakan ikrar dan komitmen ikhlas anda dalam menyokong Projek Bangunan Baharu Fasa 1.
                     </li>
                     <li>
-                        <strong>Maklumat Tepat:</strong> Sila pastikan semua butiran peribadi (Nama Penuh, Nombor Telefon, dan E-mel) diisi dengan betul bagi memudahkan urusan rekod dan perhubungan.
+                        <strong>Pecahan Ansuran:</strong> Sila masukkan jumlah keseluruhan Janji Iman anda dan nyatakan anggaran pecahan ansuran bulanan dari bulan Julai hingga Disember 2026.
                     </li>
                     <li>
-                        <strong>Status Jemaat:</strong> Sila pilih status keahlian anda sama ada anda adalah Jemaat berdaftar atau Bukan Jemaat.
-                    </li>
-                    <li>
-                        <strong>Kerahsiaan Data:</strong> Segala maklumat yang anda serahkan adalah <strong>SULIT</strong> dan hanya akan digunakan oleh pihak pentadbir bagi tujuan rekod dalaman.
+                        <strong>Kerahsiaan Data:</strong> Segala maklumat pendaftaran adalah <strong>SULIT</strong> dan hanya digunakan oleh pihak pentadbir bagi tujuan rekod kewangan dan pengurusan.
                     </li>
                 </ul>
             </section>
 
-            <!-- SEKSYEN 2: Input Data & Borang Utamakan -->
+            <!-- SEKSYEN 2: Borang Pendaftaran & Komitmen Kewangan -->
             <section class="card form-card">
-                <h2>Borang Pendaftaran & Maklumat Pemohon</h2>
+                <h3>Borang Pendaftaran & Komitmen</h3>
                 
                 <div id="alert-box" class="alert hidden"></div>
 
                 <form id="registration-form">
-                    <div class="form-group">
-                        <label for="nama">Nama Penuh</label>
-                        <input type="text" id="nama" name="nama" placeholder="Cth: Ahmad bin Abdullah / John Doe" required>
-                    </div>
+                    <!-- MAKLUMAT PERIBADI -->
+                    <div class="form-section-title">1. Maklumat Pemohon</div>
 
                     <div class="form-group">
-                        <label for="telefon">Nombor Telefon</label>
-                        <input type="tel" id="telefon" name="telefon" placeholder="Cth: 0123456789" required>
+                        <label for="nama">Nama Penuh</label>
+                        <input type="text" id="nama" name="nama" placeholder="Cth: Ahmad bin Abdullah" required>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="telefon">No. Telefon (HP NO)</label>
+                            <input type="tel" id="telefon" name="telefon" placeholder="Cth: 0123456789" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="statusJemaat">Status Keahlian</label>
+                            <select id="statusJemaat" name="statusJemaat" required>
+                                <option value="" disabled selected>-- Sila Pilih Status --</option>
+                                <option value="Jemaat">Jemaat</option>
+                                <option value="Pelawat">Pelawat</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -55,16 +71,43 @@
                         <input type="email" id="emel" name="emel" placeholder="Cth: nama@example.com" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="statusJemaat">Status Jemaat</label>
-                        <select id="statusJemaat" name="statusJemaat" required>
-                            <option value="" disabled selected>-- Sila Pilih Status --</option>
-                            <option value="Ya">Ya (Jemaat)</option>
-                            <option value="Bukan">Bukan Jemaat</option>
-                        </select>
+                    <!-- KOMITMEN KEWANGAN JANJI IMAN -->
+                    <div class="form-section-title">2. Jumlah Janji Iman & Pecahan Ansuran Bulanan (RM)</div>
+
+                    <div class="form-group highlight-input">
+                        <label for="jumlahJanjiIman">Jumlah Keseluruhan Janji Iman (RM)</label>
+                        <input type="number" id="jumlahJanjiIman" name="jumlahJanjiIman" min="1" step="0.01" placeholder="Cth: 6000.00" required>
                     </div>
 
-                    <button type="submit" id="submit-btn" class="btn btn-primary">Hantar Janji Iman</button>
+                    <label class="section-sublabel">Pecahan Ansuran Bulanan (Julai - Disember 2026):</label>
+                    <div class="months-grid">
+                        <div class="form-group month-input">
+                            <label for="jul2026">JUL 2026</label>
+                            <input type="number" id="jul2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                        <div class="form-group month-input">
+                            <label for="ogos2026">OGOS 2026</label>
+                            <input type="number" id="ogos2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                        <div class="form-group month-input">
+                            <label for="sept2026">SEPT 2026</label>
+                            <input type="number" id="sept2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                        <div class="form-group month-input">
+                            <label for="okt2026">OKT 2026</label>
+                            <input type="number" id="okt2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                        <div class="form-group month-input">
+                            <label for="nov2026">NOV 2026</label>
+                            <input type="number" id="nov2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                        <div class="form-group month-input">
+                            <label for="dis2026">DIS 2026</label>
+                            <input type="number" id="dis2026" class="month-field" min="0" step="0.01" placeholder="RM 0.00">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-large">Hantar Janji Iman</button>
                 </form>
             </section>
         </main>
