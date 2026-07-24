@@ -1,12 +1,10 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { db, auth } from "./firebase-config.js";
 import { 
-    getAuth, 
     signInWithEmailAndPassword, 
     signOut, 
     onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
-    getFirestore, 
     doc, 
     getDoc, 
     collection, 
@@ -16,22 +14,7 @@ import {
     deleteDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Konfigurasi Firebase Anda
-const firebaseConfig = {
-  apiKey: "AIzaSyDvZ2lRf7sNJEdlLwED_SpHCHVC8T-6guY",
-  authDomain: "borang-janji-iman.firebaseapp.com",
-  projectId: "borang-janji-iman",
-  storageBucket: "borang-janji-iman.firebasestorage.app",
-  messagingSenderId: "147857124075",
-  appId: "1:147857124075:web:4c4c9f30d7a6d2e650acae"
-};
-
-// Inisialisasi Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Elemen DOM
+// DOM Elements
 const loginSection = document.getElementById("login-section");
 const dashboardSection = document.getElementById("dashboard-section");
 const loginForm = document.getElementById("login-form");
@@ -42,7 +25,7 @@ const adminEmailDisplay = document.getElementById("admin-email-display");
 const pendaftaranList = document.getElementById("pendaftaran-list");
 const searchInput = document.getElementById("search-input");
 
-// Elemen Statistik
+// Statistic Elements
 const statTotalAmount = document.getElementById("stat-total-amount");
 const statTotalCount = document.getElementById("stat-total-count");
 const statJemaat = document.getElementById("stat-jemaat");
@@ -56,7 +39,7 @@ function showLoginAlert(message, type = "danger") {
     loginAlert.classList.remove("hidden");
 }
 
-// Semak Pengesahan Admin
+// Check Admin Authentication Status
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         try {

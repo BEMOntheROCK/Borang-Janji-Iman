@@ -1,26 +1,12 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db } from "./firebase-config.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Konfigurasi Firebase Anda
-const firebaseConfig = {
-  apiKey: "AIzaSyDvZ2lRf7sNJEdlLwED_SpHCHVC8T-6guY",
-  authDomain: "borang-janji-iman.firebaseapp.com",
-  projectId: "borang-janji-iman",
-  storageBucket: "borang-janji-iman.firebasestorage.app",
-  messagingSenderId: "147857124075",
-  appId: "1:147857124075:web:4c4c9f30d7a6d2e650acae"
-};
-
-// Inisialisasi Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Elemen DOM
+// DOM Elements
 const form = document.getElementById("registration-form");
 const submitBtn = document.getElementById("submit-btn");
 const alertBox = document.getElementById("alert-box");
 
-// Fungsi Mesej Amaran
+// Alert helper function
 function showAlert(message, type = "success") {
     alertBox.textContent = message;
     alertBox.className = `alert alert-${type}`;
@@ -32,7 +18,7 @@ function showAlert(message, type = "success") {
     }, 6000);
 }
 
-// Pengendali Hantar Borang
+// Form Submit Handler
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -42,7 +28,7 @@ form.addEventListener("submit", async (e) => {
     const statusJemaat = document.getElementById("statusJemaat").value;
     const jumlahJanjiIman = parseFloat(document.getElementById("jumlahJanjiIman").value) || 0;
 
-    // Ambil Pecahan Bulanan
+    // Monthly Installment Breakdown
     const ansuran = {
         jul2026: parseFloat(document.getElementById("jul2026").value) || 0,
         ogos2026: parseFloat(document.getElementById("ogos2026").value) || 0,
