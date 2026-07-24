@@ -1,14 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Konfigurasi Firebase Anda
+// Firebase Configuration
 const firebaseConfig = {
-    apiKey: "GANTIKAN_DENGAN_API_KEY_ANDA",
-    authDomain: "PROJECT_ID.firebaseapp.com",
-    projectId: "PROJECT_ID",
-    storageBucket: "PROJECT_ID.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+  apiKey: "AIzaSyDvZ2lRf7sNJEdlLwED_SpHCHVC8T-6guY",
+  authDomain: "borang-janji-iman.firebaseapp.com",
+  projectId: "borang-janji-iman",
+  storageBucket: "borang-janji-iman.firebasestorage.app",
+  messagingSenderId: "147857124075",
+  appId: "1:147857124075:web:4c4c9f30d7a6d2e650acae"
 };
 
 // Inisialisasi Firebase
