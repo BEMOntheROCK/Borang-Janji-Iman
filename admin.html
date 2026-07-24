@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papan Pemuka Pentadbir</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container container-wide">
+        <!-- Seksyen Log Masuk -->
+        <div id="login-section" class="card">
+            <header class="header">
+                <h1>Log Masuk Pentadbir</h1>
+                <p>Sila masukkan maklumat akaun pentadbir anda.</p>
+            </header>
+
+            <div id="login-alert" class="alert hidden"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="admin-email">E-mel Pentadbir</label>
+                    <input type="email" id="admin-email" placeholder="admin@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password">Kata Laluan</label>
+                    <input type="password" id="admin-password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" id="login-btn" class="btn btn-primary">Log Masuk</button>
+            </form>
+            <div class="footer-link">
+                <a href="index.html">← Kembali ke Borang Utama</a>
+            </div>
+        </div>
+
+        <!-- Seksyen Papan Pemuka Dashboard -->
+        <div id="dashboard-section" class="hidden">
+            <header class="dashboard-header">
+                <div>
+                    <h1>Papan Pemuka Pentadbir</h1>
+                    <p id="admin-user-info">Selamat datang, <span id="admin-email-display"></span></p>
+                </div>
+                <button id="logout-btn" class="btn btn-danger">Log Keluar</button>
+            </header>
+
+            <!-- Ringkasan Statistik -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Jumlah Pendaftaran</h3>
+                    <p id="stat-total">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Status Jemaat</h3>
+                    <p id="stat-jemaat">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Bukan Jemaat</h3>
+                    <p id="stat-bukan">0</p>
+                </div>
+            </div>
+
+            <main class="card card-table">
+                <div class="table-actions">
+                    <h2>Senarai Rekod Pendaftaran</h2>
+                    <input type="text" id="search-input" placeholder="Cari nama atau e-mel..." class="search-box">
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bil.</th>
+                                <th>Nama Penuh</th>
+                                <th>Nombor Telefon</th>
+                                <th>E-mel</th>
+                                <th>Status Jemaat</th>
+                                <th>Tarikh Pendaftaran</th>
+                                <th>Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendaftaran-list">
+                            <tr>
+                                <td colspan="7" class="text-center">Sedang memuatkan data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
