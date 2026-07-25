@@ -80,7 +80,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 async function loadRegistrationData() {
-    pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center">Sedang memuatkan data...</td></tr>`;
+    pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Sedang memuatkan data...</td></tr>`;
 
     try {
         const q = query(collection(db, "pendaftaran"), orderBy("createdAt", "desc"));
@@ -98,7 +98,7 @@ async function loadRegistrationData() {
         renderTable(allRecords);
     } catch (error) {
         console.error("Ralat memuatkan data:", error);
-        pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
     }
 }
 
@@ -145,6 +145,9 @@ function renderTable(records) {
 
         const ans = data.ansuran || {};
         const ansuranSummary = `Jul: ${ans.jul2026||0} | Ogos: ${ans.ogos2026||0} | Sept: ${ans.sept2026||0} | Okt: ${ans.okt2026||0} | Nov: ${ans.nov2026||0} | Dis: ${ans.dis2026||0}`;
+        const resitBadge = data.perlukanResit
+            ? `<span class="badge badge-warning">Perlu</span>`
+            : `<span class="badge badge-secondary">Tidak</span>`;
 
         tr.innerHTML = `
             <td>${index + 1}</td>
@@ -153,6 +156,7 @@ function renderTable(records) {
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
             <td><strong>RM ${totalRM}</strong></td>
             <td><small>${ansuranSummary}</small></td>
+            <td>${resitBadge}</td>
             <td>${dateFormatted}</td>
             <td>
                 <button class="btn btn-edit btn-sm" data-id="${data.id}">Kemaskini</button>
@@ -219,6 +223,7 @@ function openEditModal(docId) {
     document.getElementById("edit-status").value = record.statusJemaat || "Jemaat";
     document.getElementById("edit-emel").value = record.emel || "";
     document.getElementById("edit-jumlah").value = record.jumlahJanjiIman || 0;
+    document.getElementById("edit-perlukanResit").checked = !!record.perlukanResit;
 
     const ans = record.ansuran || {};
     document.getElementById("edit-jul2026").value = ans.jul2026 || "";
@@ -249,6 +254,7 @@ editForm.addEventListener("submit", async (e) => {
     const statusJemaat = document.getElementById("edit-status").value;
     const emel = document.getElementById("edit-emel").value.trim();
     const jumlahJanjiIman = parseFloat(document.getElementById("edit-jumlah").value) || 0;
+    const perlukanResit = document.getElementById("edit-perlukanResit").checked;
 
     const ansuran = {
         jul2026: parseFloat(document.getElementById("edit-jul2026").value) || 0,
@@ -269,7 +275,7 @@ editForm.addEventListener("submit", async (e) => {
 
     try {
         await updateDoc(doc(db, "pendaftaran", docId), {
-            nama, telefon, emel, statusJemaat, jumlahJanjiIman, ansuran
+            nama, telefon, emel, statusJemaat, jumlahJanjiIman, perlukanResit, ansuran
         });
         closeEditModal();
         loadRegistrationData();

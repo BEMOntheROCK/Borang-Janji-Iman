@@ -52,6 +52,7 @@ form.addEventListener("submit", async (e) => {
     const emel = document.getElementById("emel").value.trim();
     const statusJemaat = document.getElementById("statusJemaat").value;
     const jumlahJanjiIman = getSelectedAmount();
+    const perlukanResit = document.getElementById("perlukanResit").checked;
 
     // Monthly Installment Breakdown
     const ansuran = {
@@ -78,6 +79,7 @@ form.addEventListener("submit", async (e) => {
             emel: emel,
             statusJemaat: statusJemaat,
             jumlahJanjiIman: jumlahJanjiIman,
+            perlukanResit: perlukanResit,
             ansuran: ansuran,
             createdAt: serverTimestamp()
         });

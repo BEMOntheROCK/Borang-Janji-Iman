@@ -468,7 +468,88 @@ th { background-color: #f1f5f9; font-weight: 600; }
 }
 .badge-success { background-color: var(--success-bg); color: var(--success-text); }
 .badge-secondary { background-color: #e2e8f0; color: #475569; }
+.badge-warning { background-color: #fef3c7; color: #92400e; }
 
 .footer { text-align: center; margin-top: 24px; }
 .admin-link, .footer-link a { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
 .footer-link { text-align: center; margin-top: 16px; }
+/* --- Objektif Janji Iman (gambar) --- */
+.objektif-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.objektif-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* --- Checkbox (Perlukan Resit) --- */
+.checkbox-group {
+    margin: 16px 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+/* --- Cara Pembayaran / Bank / Hubungi --- */
+.payment-card .bank-details {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.payment-card .bank-details h4 {
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.payment-card .bank-details p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+.contact-block h4 {
+    margin-bottom: 10px;
+}
+
+.contact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: #f0fdf4;
+    transition: background-color 0.15s;
+}
+
+.contact-item:hover {
+    background-color: #dcfce7;
+}
+
+.contact-number {
+    color: var(--text-muted);
+    font-weight: 500;
+}
