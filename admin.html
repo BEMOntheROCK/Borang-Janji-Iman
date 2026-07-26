@@ -84,6 +84,7 @@
                         <thead>
                             <tr>
                                 <th>Bil.</th>
+                                <th>No. Rujukan</th>
                                 <th>Nama Penuh</th>
                                 <th>Hubungi</th>
                                 <th>Status</th>
@@ -96,7 +97,7 @@
                         </thead>
                         <tbody id="pendaftaran-list">
                             <tr>
-                                <td colspan="9" class="text-center">Sedang memuatkan data...</td>
+                                <td colspan="10" class="text-center">Sedang memuatkan data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -112,6 +113,11 @@
 
                 <form id="edit-form">
                     <input type="hidden" id="edit-id">
+
+                    <div class="form-group">
+                        <label for="edit-refnumber">No. Rujukan</label>
+                        <input type="text" id="edit-refnumber" readonly>
+                    </div>
 
                     <div class="form-group">
                         <label for="edit-nama">Nama Penuh</label>

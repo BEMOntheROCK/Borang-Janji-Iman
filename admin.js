@@ -80,7 +80,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 async function loadRegistrationData() {
-    pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Sedang memuatkan data...</td></tr>`;
+    pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Sedang memuatkan data...</td></tr>`;
 
     try {
         const q = query(collection(db, "pendaftaran"), orderBy("createdAt", "desc"));
@@ -98,7 +98,7 @@ async function loadRegistrationData() {
         renderTable(allRecords);
     } catch (error) {
         console.error("Ralat memuatkan data:", error);
-        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
     }
 }
 
@@ -122,7 +122,7 @@ function updateStatistics(records) {
 
 function renderTable(records) {
     if (records.length === 0) {
-        pendaftaranList.innerHTML = `<tr><td colspan="8" class="text-center">Tiada rekod ditemui.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Tiada rekod ditemui.</td></tr>`;
         return;
     }
 
@@ -151,6 +151,7 @@ function renderTable(records) {
 
         tr.innerHTML = `
             <td>${index + 1}</td>
+            <td><code>${escapeHtml(data.refNumber || data.id)}</code></td>
             <td><strong>${escapeHtml(data.nama || "-")}</strong></td>
             <td>${escapeHtml(data.telefon || "-")}<br><small>${escapeHtml(data.emel || "-")}</small></td>
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
@@ -218,6 +219,7 @@ function openEditModal(docId) {
 
     editAlert.classList.add("hidden");
     document.getElementById("edit-id").value = record.id;
+    document.getElementById("edit-refnumber").value = record.refNumber || record.id;
     document.getElementById("edit-nama").value = record.nama || "";
     document.getElementById("edit-telefon").value = record.telefon || "";
     document.getElementById("edit-status").value = record.statusJemaat || "Jemaat";
@@ -294,4 +296,4 @@ function escapeHtml(str) {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
-} 
+}

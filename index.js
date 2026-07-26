@@ -1,5 +1,14 @@
 import { db } from "./firebase-config.js";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Generate a random 12-digit reference number formatted as xxxx-xxxx-xxxx
+function generateRefNumber() {
+    let digits = "";
+    for (let i = 0; i < 12; i++) {
+        digits += Math.floor(Math.random() * 10);
+    }
+    return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+}
 
 // DOM Elements
 const form = document.getElementById("registration-form");
@@ -73,18 +82,43 @@ form.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Sedang Dihantar...";
 
     try {
-        await addDoc(collection(db, "pendaftaran"), {
-            nama: nama,
-            telefon: telefon,
-            emel: emel,
-            statusJemaat: statusJemaat,
-            jumlahJanjiIman: jumlahJanjiIman,
-            perlukanResit: perlukanResit,
-            ansuran: ansuran,
-            createdAt: serverTimestamp()
-        });
+        let refNumber;
+        let saved = false;
+        let lastError = null;
 
-        showAlert("Borang Janji Iman anda telah berjaya dihantar! Terima kasih atas sokongan anda.", "success");
+        // Try a few times in the extremely unlikely event of a collision.
+        // Firestore's security rules only allow "create" (not "update") for
+        // public writes, so setDoc on an existing refNumber is rejected
+        // automatically — this enforces uniqueness without needing read access.
+        for (let attempt = 0; attempt < 5 && !saved; attempt++) {
+            refNumber = generateRefNumber();
+            try {
+                await setDoc(doc(db, "pendaftaran", refNumber), {
+                    refNumber: refNumber,
+                    nama: nama,
+                    telefon: telefon,
+                    emel: emel,
+                    statusJemaat: statusJemaat,
+                    jumlahJanjiIman: jumlahJanjiIman,
+                    perlukanResit: perlukanResit,
+                    ansuran: ansuran,
+                    createdAt: serverTimestamp()
+                });
+                saved = true;
+            } catch (err) {
+                lastError = err;
+                if (err.code !== "permission-denied") {
+                    throw err;
+                }
+                // permission-denied here means the ID already exists — retry with a new number
+            }
+        }
+
+        if (!saved) {
+            throw lastError || new Error("Gagal menjana nombor rujukan yang unik.");
+        }
+
+        showAlert(`Borang Janji Iman anda telah berjaya dihantar! Nombor rujukan anda: ${refNumber}. Terima kasih atas sokongan anda.`, "success");
         form.reset();
         customAmountInput.disabled = true;
     } catch (error) {
