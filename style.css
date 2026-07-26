@@ -16,6 +16,25 @@
     --danger-text: #b91c1c;
     --radius: 8px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --bold-color: #111184;
+}
+
+strong, b {
+    color: var(--bold-color);
+}
+
+@font-face {
+    font-family: "Britannic Bold";
+    src: url("assets/britannic-bold.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Forte";
+    src: url("assets/forte.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 * {
@@ -111,7 +130,7 @@ body {
 .card h3 {
     font-size: 1.15rem;
     margin-bottom: 14px;
-    color: var(--text-color);
+    color: var(--bold-color);
 }
 
 .card-table {
@@ -150,7 +169,7 @@ body {
 .form-section-title {
     font-weight: 700;
     font-size: 1rem;
-    color: var(--text-color);
+    color: var(--bold-color);
     border-bottom: 2px solid #e2e8f0;
     padding-bottom: 6px;
     margin: 20px 0 16px 0;
@@ -517,7 +536,7 @@ th { background-color: #f1f5f9; font-weight: 600; }
 
 .payment-card .bank-details h4 {
     margin-bottom: 8px;
-    color: var(--text-color);
+    color: var(--bold-color);
 }
 
 .payment-card .bank-details p {
@@ -527,6 +546,7 @@ th { background-color: #f1f5f9; font-weight: 600; }
 
 .contact-block h4 {
     margin-bottom: 10px;
+    color: var(--bold-color);
 }
 
 .contact-item {
@@ -552,4 +572,33 @@ th { background-color: #f1f5f9; font-weight: 600; }
 .contact-number {
     color: var(--text-muted);
     font-weight: 500;
+}
+/* --- Tajuk Laman (BEM On The Rock) --- */
+.site-title {
+    text-align: center;
+    margin-bottom: 20px;
+    line-height: 1.1;
+}
+
+.site-title .title-bem {
+    font-family: "Britannic Bold", sans-serif;
+    font-size: 2.4rem;
+    color: var(--bold-color);
+    display: block;
+}
+
+.site-title .title-ontherock {
+    font-family: "Forte", sans-serif;
+    font-size: 1.6rem;
+    color: var(--bold-color);
+    display: block;
+}
+
+@media (max-width: 500px) {
+    .site-title .title-bem {
+        font-size: 1.9rem;
+    }
+    .site-title .title-ontherock {
+        font-size: 1.3rem;
+    }
 }
