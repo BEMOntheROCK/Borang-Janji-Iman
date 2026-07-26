@@ -84,7 +84,6 @@
                         <thead>
                             <tr>
                                 <th>Bil.</th>
-                                <th>No. Rujukan</th>
                                 <th>Nama Penuh</th>
                                 <th>Hubungi</th>
                                 <th>Status</th>
@@ -97,7 +96,7 @@
                         </thead>
                         <tbody id="pendaftaran-list">
                             <tr>
-                                <td colspan="10" class="text-center">Sedang memuatkan data...</td>
+                                <td colspan="9" class="text-center">Sedang memuatkan data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -188,6 +187,67 @@
                         <button type="submit" id="edit-save-btn" class="btn btn-primary">Simpan Perubahan</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal Lihat Butiran Rekod -->
+        <div id="view-modal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <h2>Butiran Rekod Janji Iman</h2>
+
+                <div class="view-details">
+                    <div class="view-row">
+                        <span class="view-label">No. Rujukan</span>
+                        <span class="view-value" id="view-refnumber"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Nama Penuh</span>
+                        <span class="view-value" id="view-nama"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">No. Telefon</span>
+                        <span class="view-value" id="view-telefon"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Alamat E-mel</span>
+                        <span class="view-value" id="view-emel"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Status Keahlian</span>
+                        <span class="view-value" id="view-status"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Jumlah Janji Iman (RM)</span>
+                        <span class="view-value" id="view-jumlah"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Perlukan Resit</span>
+                        <span class="view-value" id="view-resit"></span>
+                    </div>
+                    <div class="view-row">
+                        <span class="view-label">Tarikh Daftar</span>
+                        <span class="view-value" id="view-tarikh"></span>
+                    </div>
+
+                    <label class="section-sublabel">Pecahan Ansuran Bulanan</label>
+                    <div class="months-grid">
+                        <div class="view-row"><span class="view-label">JUL 2026</span><span class="view-value" id="view-jul2026"></span></div>
+                        <div class="view-row"><span class="view-label">OGOS 2026</span><span class="view-value" id="view-ogos2026"></span></div>
+                        <div class="view-row"><span class="view-label">SEPT 2026</span><span class="view-value" id="view-sept2026"></span></div>
+                        <div class="view-row"><span class="view-label">OKT 2026</span><span class="view-value" id="view-okt2026"></span></div>
+                        <div class="view-row"><span class="view-label">NOV 2026</span><span class="view-value" id="view-nov2026"></span></div>
+                        <div class="view-row"><span class="view-label">DIS 2026</span><span class="view-value" id="view-dis2026"></span></div>
+                    </div>
+                </div>
+
+                <div class="modal-actions modal-actions-3">
+                    <button type="button" id="view-edit-btn" class="btn btn-edit">Kemas Kini</button>
+                    <button type="button" id="view-resit-btn" class="btn btn-resit">Resit</button>
+                    <button type="button" id="view-delete-btn" class="btn btn-delete">Padam</button>
+                </div>
+                <div class="modal-close-link">
+                    <a href="#" id="view-close-btn">Tutup</a>
+                </div>
             </div>
         </div>
     </div>

@@ -13,6 +13,7 @@ import {
     deleteDoc,
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/+esm";
 
 // DOM Elements
 const loginSection = document.getElementById("login-section");
@@ -80,7 +81,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 async function loadRegistrationData() {
-    pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Sedang memuatkan data...</td></tr>`;
+    pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Sedang memuatkan data...</td></tr>`;
 
     try {
         const q = query(collection(db, "pendaftaran"), orderBy("createdAt", "desc"));
@@ -98,7 +99,7 @@ async function loadRegistrationData() {
         renderTable(allRecords);
     } catch (error) {
         console.error("Ralat memuatkan data:", error);
-        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
     }
 }
 
@@ -122,7 +123,7 @@ function updateStatistics(records) {
 
 function renderTable(records) {
     if (records.length === 0) {
-        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Tiada rekod ditemui.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Tiada rekod ditemui.</td></tr>`;
         return;
     }
 
@@ -151,7 +152,6 @@ function renderTable(records) {
 
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td><code>${escapeHtml(data.refNumber || data.id)}</code></td>
             <td><strong>${escapeHtml(data.nama || "-")}</strong></td>
             <td>${escapeHtml(data.telefon || "-")}<br><small>${escapeHtml(data.emel || "-")}</small></td>
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
@@ -160,32 +160,22 @@ function renderTable(records) {
             <td>${resitBadge}</td>
             <td>${dateFormatted}</td>
             <td>
-                <button class="btn btn-edit btn-sm" data-id="${data.id}">Kemaskini</button>
-                <button class="btn btn-delete btn-sm" data-id="${data.id}">Padam</button>
+                <button class="btn-icon-view" data-id="${data.id}" title="Lihat Butiran" aria-label="Lihat Butiran">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
             </td>
         `;
 
         pendaftaranList.appendChild(tr);
     });
 
-    document.querySelectorAll(".btn-delete").forEach(button => {
-        button.addEventListener("click", async (e) => {
-            const docId = e.target.getAttribute("data-id");
-            if (confirm("Adakah anda pasti ingin memadam rekod ini?")) {
-                try {
-                    await deleteDoc(doc(db, "pendaftaran", docId));
-                    loadRegistrationData();
-                } catch (err) {
-                    alert("Ralat semasa memadam.");
-                }
-            }
-        });
-    });
-
-    document.querySelectorAll(".btn-edit").forEach(button => {
+    document.querySelectorAll(".btn-icon-view").forEach(button => {
         button.addEventListener("click", (e) => {
-            const docId = e.target.getAttribute("data-id");
-            openEditModal(docId);
+            const docId = e.currentTarget.getAttribute("data-id");
+            openViewModal(docId);
         });
     });
 }
@@ -246,6 +236,179 @@ editCancelBtn.addEventListener("click", closeEditModal);
 editModal.addEventListener("click", (e) => {
     if (e.target === editModal) closeEditModal();
 });
+
+// --- View Modal Logic ---
+const viewModal = document.getElementById("view-modal");
+const viewCloseBtn = document.getElementById("view-close-btn");
+const viewEditBtn = document.getElementById("view-edit-btn");
+const viewResitBtn = document.getElementById("view-resit-btn");
+const viewDeleteBtn = document.getElementById("view-delete-btn");
+
+let currentViewDocId = null;
+
+function openViewModal(docId) {
+    const record = allRecords.find(r => r.id === docId);
+    if (!record) return;
+
+    currentViewDocId = docId;
+
+    let dateFormatted = "N/A";
+    if (record.createdAt && record.createdAt.toDate) {
+        dateFormatted = record.createdAt.toDate().toLocaleDateString("ms-MY", {
+            day: "2-digit", month: "2-digit", year: "numeric"
+        });
+    }
+
+    const totalRM = Number(record.jumlahJanjiIman || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 });
+    const ans = record.ansuran || {};
+
+    document.getElementById("view-refnumber").textContent = record.refNumber || record.id;
+    document.getElementById("view-nama").textContent = record.nama || "-";
+    document.getElementById("view-telefon").textContent = record.telefon || "-";
+    document.getElementById("view-emel").textContent = record.emel || "-";
+    document.getElementById("view-status").textContent = record.statusJemaat || "-";
+    document.getElementById("view-jumlah").textContent = `RM ${totalRM}`;
+    document.getElementById("view-resit").textContent = record.perlukanResit ? "Perlu" : "Tidak";
+    document.getElementById("view-tarikh").textContent = dateFormatted;
+    document.getElementById("view-jul2026").textContent = `RM ${(ans.jul2026 || 0).toFixed(2)}`;
+    document.getElementById("view-ogos2026").textContent = `RM ${(ans.ogos2026 || 0).toFixed(2)}`;
+    document.getElementById("view-sept2026").textContent = `RM ${(ans.sept2026 || 0).toFixed(2)}`;
+    document.getElementById("view-okt2026").textContent = `RM ${(ans.okt2026 || 0).toFixed(2)}`;
+    document.getElementById("view-nov2026").textContent = `RM ${(ans.nov2026 || 0).toFixed(2)}`;
+    document.getElementById("view-dis2026").textContent = `RM ${(ans.dis2026 || 0).toFixed(2)}`;
+
+    viewModal.classList.remove("hidden");
+}
+
+function closeViewModal() {
+    viewModal.classList.add("hidden");
+    currentViewDocId = null;
+}
+
+viewCloseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeViewModal();
+});
+viewModal.addEventListener("click", (e) => {
+    if (e.target === viewModal) closeViewModal();
+});
+
+// "Kemas Kini" inside the view modal — switch to the edit modal for the same record
+viewEditBtn.addEventListener("click", () => {
+    if (!currentViewDocId) return;
+    const docId = currentViewDocId;
+    closeViewModal();
+    openEditModal(docId);
+});
+
+// "Padam" inside the view modal — confirm and delete
+viewDeleteBtn.addEventListener("click", async () => {
+    if (!currentViewDocId) return;
+    if (confirm("Adakah anda pasti ingin memadam rekod ini?")) {
+        try {
+            await deleteDoc(doc(db, "pendaftaran", currentViewDocId));
+            closeViewModal();
+            loadRegistrationData();
+        } catch (err) {
+            console.error("Ralat memadam:", err);
+            alert("Ralat semasa memadam.");
+        }
+    }
+});
+
+// "Resit" inside the view modal — export the donor's details as a PDF receipt
+viewResitBtn.addEventListener("click", () => {
+    if (!currentViewDocId) return;
+    const record = allRecords.find(r => r.id === currentViewDocId);
+    if (!record) return;
+    generateResitPdf(record);
+});
+
+function generateResitPdf(record) {
+    const pdf = new jsPDF({ unit: "pt", format: "a4" });
+    const refNumber = record.refNumber || record.id;
+    const totalRM = Number(record.jumlahJanjiIman || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 });
+    const ans = record.ansuran || {};
+
+    let dateFormatted = "N/A";
+    if (record.createdAt && record.createdAt.toDate) {
+        dateFormatted = record.createdAt.toDate().toLocaleDateString("ms-MY", {
+            day: "2-digit", month: "2-digit", year: "numeric"
+        });
+    }
+
+    const marginX = 50;
+    let y = 60;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    pdf.text("BEM On The ROCK", marginX, y);
+
+    y += 22;
+    pdf.setFontSize(14);
+    pdf.text("Resit Janji Iman - Projek Bangunan Baharu", marginX, y);
+
+    y += 30;
+    pdf.setDrawColor(200);
+    pdf.line(marginX, y, 545, y);
+
+    y += 30;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+
+    const row = (label, value) => {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(label, marginX, y);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(String(value), marginX + 160, y);
+        y += 22;
+    };
+
+    row("No. Rujukan:", refNumber);
+    row("Nama Penuh:", record.nama || "-");
+    row("No. Telefon:", record.telefon || "-");
+    row("Alamat E-mel:", record.emel || "-");
+    row("Status Keahlian:", record.statusJemaat || "-");
+    row("Tarikh Daftar:", dateFormatted);
+
+    y += 10;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text(`Jumlah Janji Iman: RM ${totalRM}`, marginX, y);
+
+    y += 30;
+    pdf.setFontSize(11);
+    pdf.text("Pecahan Ansuran Bulanan (Julai - Disember 2026)", marginX, y);
+    y += 10;
+    pdf.line(marginX, y, 545, y);
+    y += 22;
+
+    const months = [
+        ["Julai 2026", ans.jul2026],
+        ["Ogos 2026", ans.ogos2026],
+        ["September 2026", ans.sept2026],
+        ["Oktober 2026", ans.okt2026],
+        ["November 2026", ans.nov2026],
+        ["Disember 2026", ans.dis2026],
+    ];
+
+    pdf.setFont("helvetica", "normal");
+    months.forEach(([label, amount]) => {
+        pdf.text(label, marginX, y);
+        pdf.text(`RM ${Number(amount || 0).toFixed(2)}`, marginX + 200, y);
+        y += 20;
+    });
+
+    y += 30;
+    pdf.setDrawColor(200);
+    pdf.line(marginX, y, 545, y);
+    y += 20;
+    pdf.setFontSize(9);
+    pdf.setTextColor(120);
+    pdf.text(`Resit ini dijana secara automatik pada ${new Date().toLocaleDateString("ms-MY")}.`, marginX, y);
+
+    pdf.save(`Resit_${refNumber}.pdf`);
+}
 
 editForm.addEventListener("submit", async (e) => {
     e.preventDefault();

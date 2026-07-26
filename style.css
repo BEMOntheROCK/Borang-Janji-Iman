@@ -616,3 +616,113 @@ input[readonly] {
     color: var(--text-muted);
     cursor: not-allowed;
 }
+/* --- Butang Lihat & Modal Butiran --- */
+.btn-view {
+    background-color: #64748b;
+    color: #ffffff;
+}
+
+.btn-view:hover {
+    background-color: #475569;
+}
+
+.view-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.view-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.view-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.view-value {
+    font-weight: 700;
+    color: var(--bold-color);
+    text-align: right;
+}
+
+.view-details .months-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 16px;
+    margin-top: 8px;
+}
+
+.view-details .months-grid .view-row {
+    padding: 4px 0;
+}
+
+/* --- Butang Ikon Mata (Lihat) --- */
+.btn-icon-view {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn-icon-view:hover {
+    background-color: #eff6ff;
+    border-color: var(--primary-color);
+}
+
+/* --- Modal Butiran: 3 butang tindakan --- */
+.modal-actions-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.modal-actions-3 .btn {
+    width: 100%;
+}
+
+.btn-resit {
+    background-color: #0d9488;
+    color: #ffffff;
+}
+
+.btn-resit:hover {
+    background-color: #0f766e;
+}
+
+.modal-close-link {
+    text-align: center;
+    margin-top: 14px;
+}
+
+.modal-close-link a {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.modal-close-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .modal-actions-3 {
+        grid-template-columns: 1fr;
+    }
+}
