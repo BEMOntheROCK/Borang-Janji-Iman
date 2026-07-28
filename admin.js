@@ -14,6 +14,8 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/+esm";
+import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
+import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 // DOM Elements
 const loginSection = document.getElementById("login-section");
@@ -460,3 +462,115 @@ function escapeHtml(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
+// --- Eksport Data (PDF / XLSX) ---
+const exportBtn = document.getElementById("export-btn");
+const exportModal = document.getElementById("export-modal");
+const exportCloseBtn = document.getElementById("export-close-btn");
+const exportPdfBtn = document.getElementById("export-pdf-btn");
+const exportXlsxBtn = document.getElementById("export-xlsx-btn");
+
+const EXPORT_COLUMNS = [
+    "Bil.", "No. Rujukan", "Nama Penuh", "No. Telefon", "Alamat E-mel", "Status",
+    "Jumlah Janji Iman (RM)", "Jul 2026", "Ogos 2026", "Sept 2026", "Okt 2026",
+    "Nov 2026", "Dis 2026", "Perlukan Resit", "Tarikh Daftar"
+];
+
+function buildExportRows() {
+    return allRecords.map((record, index) => {
+        const ans = record.ansuran || {};
+
+        let dateFormatted = "N/A";
+        if (record.createdAt && record.createdAt.toDate) {
+            dateFormatted = record.createdAt.toDate().toLocaleDateString("ms-MY", {
+                day: "2-digit", month: "2-digit", year: "numeric"
+            });
+        }
+
+        return [
+            index + 1,
+            record.refNumber || record.id,
+            record.nama || "-",
+            record.telefon || "-",
+            record.emel || "-",
+            record.statusJemaat || "-",
+            Number(record.jumlahJanjiIman || 0).toFixed(2),
+            Number(ans.jul2026 || 0).toFixed(2),
+            Number(ans.ogos2026 || 0).toFixed(2),
+            Number(ans.sept2026 || 0).toFixed(2),
+            Number(ans.okt2026 || 0).toFixed(2),
+            Number(ans.nov2026 || 0).toFixed(2),
+            Number(ans.dis2026 || 0).toFixed(2),
+            record.perlukanResit ? "Perlu" : "Tidak",
+            dateFormatted
+        ];
+    });
+}
+
+function openExportModal() {
+    exportModal.classList.remove("hidden");
+}
+
+function closeExportModal() {
+    exportModal.classList.add("hidden");
+}
+
+exportBtn.addEventListener("click", openExportModal);
+exportCloseBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeExportModal();
+});
+exportModal.addEventListener("click", (e) => {
+    if (e.target === exportModal) closeExportModal();
+});
+
+exportXlsxBtn.addEventListener("click", () => {
+    if (!allRecords.length) {
+        alert("Tiada rekod untuk dieksport.");
+        return;
+    }
+
+    const rows = buildExportRows();
+    const worksheetData = [EXPORT_COLUMNS, ...rows];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Janji Iman");
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `Senarai_Janji_Iman_${todayStr}.xlsx`);
+
+    closeExportModal();
+});
+
+exportPdfBtn.addEventListener("click", () => {
+    if (!allRecords.length) {
+        alert("Tiada rekod untuk dieksport.");
+        return;
+    }
+
+    const rows = buildExportRows();
+    const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text("BEM On The ROCK - Senarai Rekod Janji Iman", 40, 40);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.text(`Dijana pada: ${new Date().toLocaleDateString("ms-MY")}`, 40, 58);
+    pdf.text(`Jumlah Rekod: ${allRecords.length}`, 40, 72);
+
+    autoTable(pdf, {
+        head: [EXPORT_COLUMNS],
+        body: rows,
+        startY: 90,
+        styles: { fontSize: 7, cellPadding: 4 },
+        headStyles: { fillColor: [17, 17, 132], textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+        margin: { left: 30, right: 30 }
+    });
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    pdf.save(`Senarai_Janji_Iman_${todayStr}.pdf`);
+
+    closeExportModal();
+});

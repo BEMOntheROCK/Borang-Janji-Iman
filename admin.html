@@ -49,7 +49,10 @@
                     <h1>Papan Pemuka Janji Iman</h1>
                     <p id="admin-user-info">Pentadbir: <span id="admin-email-display"></span></p>
                 </div>
-                <button id="logout-btn" class="btn btn-danger">Log Keluar</button>
+                <div class="header-actions">
+                    <button id="export-btn" class="btn btn-export">Eksport</button>
+                    <button id="logout-btn" class="btn btn-danger">Log Keluar</button>
+                </div>
             </header>
 
             <!-- Ringkasan Statistik -->
@@ -187,6 +190,29 @@
                         <button type="submit" id="edit-save-btn" class="btn btn-primary">Simpan Perubahan</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal Eksport Data -->
+        <div id="export-modal" class="modal-overlay hidden">
+            <div class="modal-box modal-box-small">
+                <h2>Eksport Senarai Rekod</h2>
+                <p class="export-hint">Pilih format eksport. Semua rekod dan maklumat akan disertakan dalam bentuk jadual.</p>
+
+                <div class="export-choices">
+                    <button type="button" id="export-pdf-btn" class="export-choice">
+                        <span class="export-choice-icon">📄</span>
+                        <span class="export-choice-label">PDF</span>
+                    </button>
+                    <button type="button" id="export-xlsx-btn" class="export-choice">
+                        <span class="export-choice-icon">📊</span>
+                        <span class="export-choice-label">Excel (XLSX)</span>
+                    </button>
+                </div>
+
+                <div class="modal-close-link">
+                    <a href="#" id="export-close-btn">Batal</a>
+                </div>
             </div>
         </div>
 
