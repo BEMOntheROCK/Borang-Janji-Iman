@@ -47,17 +47,29 @@ function generateRefNumber() {
 async function migrate() {
     console.log(isDryRun ? "Running in DRY-RUN mode — no writes will be made.\n" : "Running migration — writes WILL be made.\n");
 
-    const snapshot = await db.collection("pendaftaran").orderBy("createdAt", "asc").get();
+    // NOTE: we intentionally do NOT use .orderBy("createdAt") here.
+    // Firestore's orderBy silently EXCLUDES any document missing that field
+    // from the results entirely — so older/manually-created records without
+    // a createdAt timestamp would never even be seen by this script. Fetching
+    // the whole collection unordered guarantees every document is covered,
+    // then we sort in memory (docs without createdAt are pushed to the end).
+    const snapshot = await db.collection("pendaftaran").get();
 
     if (snapshot.empty) {
         console.log("No documents found in 'pendaftaran'. Nothing to do.");
         return;
     }
 
+    const docs = snapshot.docs.slice().sort((a, b) => {
+        const aTime = a.data().createdAt ? a.data().createdAt.toMillis() : Infinity;
+        const bTime = b.data().createdAt ? b.data().createdAt.toMillis() : Infinity;
+        return aTime - bTime;
+    });
+
     const usedRefNumbers = new Set();
 
     // Pre-load ref numbers already present so new ones can't collide with them
-    snapshot.forEach(docSnap => {
+    docs.forEach(docSnap => {
         const existing = docSnap.data().refNumber;
         if (existing) usedRefNumbers.add(existing);
     });
@@ -65,7 +77,7 @@ async function migrate() {
     let updatedCount = 0;
     let skippedCount = 0;
 
-    for (const docSnap of snapshot.docs) {
+    for (const docSnap of docs) {
         const data = docSnap.data();
 
         if (data.refNumber) {
