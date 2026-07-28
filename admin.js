@@ -14,7 +14,6 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/+esm";
-import autoTable from "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm";
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 
 // DOM Elements
@@ -154,7 +153,7 @@ function renderTable(records) {
 
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td><strong>${escapeHtml(data.nama || "-")}</strong></td>
+            <td><strong>${escapeHtml((data.nama || "-").toUpperCase())}</strong></td>
             <td>${escapeHtml(data.telefon || "-")}<br><small>${escapeHtml(data.emel || "-")}</small></td>
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
             <td><strong>RM ${totalRM}</strong></td>
@@ -212,7 +211,7 @@ function openEditModal(docId) {
     editAlert.classList.add("hidden");
     document.getElementById("edit-id").value = record.id;
     document.getElementById("edit-refnumber").value = record.refNumber || record.id;
-    document.getElementById("edit-nama").value = record.nama || "";
+    document.getElementById("edit-nama").value = (record.nama || "").toUpperCase();
     document.getElementById("edit-telefon").value = record.telefon || "";
     document.getElementById("edit-status").value = record.statusJemaat || "Jemaat";
     document.getElementById("edit-emel").value = record.emel || "";
@@ -265,7 +264,7 @@ function openViewModal(docId) {
     const ans = record.ansuran || {};
 
     document.getElementById("view-refnumber").textContent = record.refNumber || record.id;
-    document.getElementById("view-nama").textContent = record.nama || "-";
+    document.getElementById("view-nama").textContent = (record.nama || "-").toUpperCase();
     document.getElementById("view-telefon").textContent = record.telefon || "-";
     document.getElementById("view-emel").textContent = record.emel || "-";
     document.getElementById("view-status").textContent = record.statusJemaat || "-";
@@ -367,7 +366,7 @@ function generateResitPdf(record) {
     };
 
     row("No. Rujukan:", refNumber);
-    row("Nama Penuh:", record.nama || "-");
+    row("Nama Penuh:", (record.nama || "-").toUpperCase());
     row("No. Telefon:", record.telefon || "-");
     row("Alamat E-mel:", record.emel || "-");
     row("Status Keahlian:", record.statusJemaat || "-");
@@ -469,27 +468,35 @@ const exportCloseBtn = document.getElementById("export-close-btn");
 const exportPdfBtn = document.getElementById("export-pdf-btn");
 const exportXlsxBtn = document.getElementById("export-xlsx-btn");
 
-const EXPORT_COLUMNS = [
+// Full column set (used for XLSX — one column per installment month)
+const EXPORT_COLUMNS_XLSX = [
     "Bil.", "No. Rujukan", "Nama Penuh", "No. Telefon", "Alamat E-mel", "Status",
     "Jumlah Janji Iman (RM)", "Jul 2026", "Ogos 2026", "Sept 2026", "Okt 2026",
     "Nov 2026", "Dis 2026", "Perlukan Resit", "Tarikh Daftar"
 ];
 
-function buildExportRows() {
+// Condensed column set (used for PDF — installments combined into one column so it fits the page)
+const EXPORT_COLUMNS_PDF = [
+    "Bil.", "No. Rujukan", "Nama Penuh", "No. Telefon", "Alamat E-mel", "Status",
+    "Jumlah (RM)", "Pecahan Ansuran (Jul - Dis 2026)", "Resit", "Tarikh"
+];
+
+function formatDate(record) {
+    if (record.createdAt && record.createdAt.toDate) {
+        return record.createdAt.toDate().toLocaleDateString("ms-MY", {
+            day: "2-digit", month: "2-digit", year: "numeric"
+        });
+    }
+    return "N/A";
+}
+
+function buildExportRowsXlsx() {
     return allRecords.map((record, index) => {
         const ans = record.ansuran || {};
-
-        let dateFormatted = "N/A";
-        if (record.createdAt && record.createdAt.toDate) {
-            dateFormatted = record.createdAt.toDate().toLocaleDateString("ms-MY", {
-                day: "2-digit", month: "2-digit", year: "numeric"
-            });
-        }
-
         return [
             index + 1,
             record.refNumber || record.id,
-            record.nama || "-",
+            (record.nama || "-").toUpperCase(),
             record.telefon || "-",
             record.emel || "-",
             record.statusJemaat || "-",
@@ -501,7 +508,30 @@ function buildExportRows() {
             Number(ans.nov2026 || 0).toFixed(2),
             Number(ans.dis2026 || 0).toFixed(2),
             record.perlukanResit ? "Perlu" : "Tidak",
-            dateFormatted
+            formatDate(record)
+        ];
+    });
+}
+
+function buildExportRowsPdf() {
+    return allRecords.map((record, index) => {
+        const ans = record.ansuran || {};
+        const ansuranSummary =
+            `Jul:${Number(ans.jul2026 || 0).toFixed(0)} | Ogos:${Number(ans.ogos2026 || 0).toFixed(0)} | ` +
+            `Sept:${Number(ans.sept2026 || 0).toFixed(0)} | Okt:${Number(ans.okt2026 || 0).toFixed(0)} | ` +
+            `Nov:${Number(ans.nov2026 || 0).toFixed(0)} | Dis:${Number(ans.dis2026 || 0).toFixed(0)}`;
+
+        return [
+            String(index + 1),
+            String(record.refNumber || record.id),
+            (record.nama || "-").toUpperCase(),
+            record.telefon || "-",
+            record.emel || "-",
+            record.statusJemaat || "-",
+            Number(record.jumlahJanjiIman || 0).toFixed(2),
+            ansuranSummary,
+            record.perlukanResit ? "Perlu" : "Tidak",
+            formatDate(record)
         ];
     });
 }
@@ -529,8 +559,8 @@ exportXlsxBtn.addEventListener("click", () => {
         return;
     }
 
-    const rows = buildExportRows();
-    const worksheetData = [EXPORT_COLUMNS, ...rows];
+    const rows = buildExportRowsXlsx();
+    const worksheetData = [EXPORT_COLUMNS_XLSX, ...rows];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Janji Iman");
@@ -541,33 +571,105 @@ exportXlsxBtn.addEventListener("click", () => {
     closeExportModal();
 });
 
+// Hand-rolled PDF table (no external plugin — jspdf-autotable's CDN build
+// proved unreliable, so this draws rows/columns directly with jsPDF's own
+// text + line primitives, including pagination and header repeat).
+function drawPdfTable(pdf, columns, rows) {
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const marginX = 30;
+    const marginBottom = 40;
+    const usableWidth = pageWidth - marginX * 2;
+
+    // Column width ratios (must sum to 1) — tuned for the 10 PDF columns
+    const ratios = [0.03, 0.10, 0.14, 0.09, 0.15, 0.07, 0.08, 0.22, 0.06, 0.06];
+    const colWidths = ratios.map(r => usableWidth * r);
+
+    const fontSize = 7;
+    const cellPaddingX = 4;
+    const lineHeight = 10;
+    const headerRowHeight = 20;
+
+    pdf.setFontSize(fontSize);
+
+    function wrapText(text, width) {
+        const maxWidth = width - cellPaddingX * 2;
+        return pdf.splitTextToSize(String(text), maxWidth);
+    }
+
+    function drawHeader(y) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFillColor(17, 17, 132);
+        pdf.setTextColor(255, 255, 255);
+        pdf.rect(marginX, y, usableWidth, headerRowHeight, "F");
+
+        let x = marginX;
+        columns.forEach((col, i) => {
+            pdf.text(col, x + cellPaddingX, y + 13, { maxWidth: colWidths[i] - cellPaddingX * 2 });
+            x += colWidths[i];
+        });
+
+        pdf.setTextColor(30, 41, 59);
+        pdf.setFont("helvetica", "normal");
+        return y + headerRowHeight;
+    }
+
+    let y = drawHeader(60);
+    let rowIndex = 0;
+
+    rows.forEach((row) => {
+        // Pre-compute wrapped lines per cell to know this row's height
+        const wrappedCells = row.map((cell, i) => wrapText(cell, colWidths[i]));
+        const rowLines = Math.max(...wrappedCells.map(lines => lines.length));
+        const rowHeight = Math.max(16, rowLines * lineHeight + 6);
+
+        // Page break if this row won't fit
+        if (y + rowHeight > pageHeight - marginBottom) {
+            pdf.addPage();
+            y = drawHeader(40);
+        }
+
+        // Alternating row background
+        if (rowIndex % 2 === 1) {
+            pdf.setFillColor(245, 247, 250);
+            pdf.rect(marginX, y, usableWidth, rowHeight, "F");
+        }
+
+        let x = marginX;
+        wrappedCells.forEach((lines, i) => {
+            pdf.text(lines, x + cellPaddingX, y + 11);
+            x += colWidths[i];
+        });
+
+        // Row divider line
+        pdf.setDrawColor(226, 232, 240);
+        pdf.line(marginX, y + rowHeight, marginX + usableWidth, y + rowHeight);
+
+        y += rowHeight;
+        rowIndex++;
+    });
+}
+
 exportPdfBtn.addEventListener("click", () => {
     if (!allRecords.length) {
         alert("Tiada rekod untuk dieksport.");
         return;
     }
 
-    const rows = buildExportRows();
+    const rows = buildExportRowsPdf();
     const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(16);
-    pdf.text("BEM On The ROCK - Senarai Rekod Janji Iman", 40, 40);
+    pdf.setTextColor(17, 17, 132);
+    pdf.text("BEM On The ROCK - Senarai Rekod Janji Iman", 30, 30);
 
     pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
-    pdf.text(`Dijana pada: ${new Date().toLocaleDateString("ms-MY")}`, 40, 58);
-    pdf.text(`Jumlah Rekod: ${allRecords.length}`, 40, 72);
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text(`Dijana pada: ${new Date().toLocaleDateString("ms-MY")}  |  Jumlah Rekod: ${allRecords.length}`, 30, 44);
 
-    autoTable(pdf, {
-        head: [EXPORT_COLUMNS],
-        body: rows,
-        startY: 90,
-        styles: { fontSize: 7, cellPadding: 4 },
-        headStyles: { fillColor: [17, 17, 132], textColor: 255, fontStyle: "bold" },
-        alternateRowStyles: { fillColor: [245, 247, 250] },
-        margin: { left: 30, right: 30 }
-    });
+    drawPdfTable(pdf, EXPORT_COLUMNS_PDF, rows);
 
     const todayStr = new Date().toISOString().slice(0, 10);
     pdf.save(`Senarai_Janji_Iman_${todayStr}.pdf`);
