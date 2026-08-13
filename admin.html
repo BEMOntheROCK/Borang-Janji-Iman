@@ -92,6 +92,7 @@
                                 <th>Status</th>
                                 <th>Jumlah (RM)</th>
                                 <th>Pecahan Ansuran (Jul - Dis 2026)</th>
+                                <th>Bayaran</th>
                                 <th>Resit</th>
                                 <th>Tarikh</th>
                                 <th>Tindakan</th>
@@ -99,7 +100,7 @@
                         </thead>
                         <tbody id="pendaftaran-list">
                             <tr>
-                                <td colspan="9" class="text-center">Sedang memuatkan data...</td>
+                                <td colspan="10" class="text-center">Sedang memuatkan data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -264,6 +265,18 @@
                         <div class="view-row"><span class="view-label">NOV 2026</span><span class="view-value" id="view-nov2026"></span></div>
                         <div class="view-row"><span class="view-label">DIS 2026</span><span class="view-value" id="view-dis2026"></span></div>
                     </div>
+
+                    <label class="section-sublabel">Status Bayaran Bulanan</label>
+                    <div id="bayaran-alert" class="alert hidden"></div>
+                    <div class="months-grid">
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-jul2026"> JUL 2026</label>
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-ogos2026"> OGOS 2026</label>
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-sept2026"> SEPT 2026</label>
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-okt2026"> OKT 2026</label>
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-nov2026"> NOV 2026</label>
+                        <label class="checkbox-label month-input"><input type="checkbox" id="bayar-dis2026"> DIS 2026</label>
+                    </div>
+                    <button type="button" id="bayaran-save-btn" class="btn btn-edit" style="margin-top: 12px; width: 100%;">Simpan Status Bayaran</button>
                 </div>
 
                 <div class="modal-actions modal-actions-3">

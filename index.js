@@ -64,13 +64,15 @@ form.addEventListener("submit", async (e) => {
     const perlukanResit = document.getElementById("perlukanResit").checked;
 
     // Monthly Installment Breakdown
+    // Each month stores the planned amount ("jumlah") plus a payment status
+    // flag ("dahBayar") that the admin panel toggles once that month is paid.
     const ansuran = {
-        jul2026: parseFloat(document.getElementById("jul2026").value) || 0,
-        ogos2026: parseFloat(document.getElementById("ogos2026").value) || 0,
-        sept2026: parseFloat(document.getElementById("sept2026").value) || 0,
-        okt2026: parseFloat(document.getElementById("okt2026").value) || 0,
-        nov2026: parseFloat(document.getElementById("nov2026").value) || 0,
-        dis2026: parseFloat(document.getElementById("dis2026").value) || 0,
+        jul2026: { jumlah: parseFloat(document.getElementById("jul2026").value) || 0, dahBayar: false },
+        ogos2026: { jumlah: parseFloat(document.getElementById("ogos2026").value) || 0, dahBayar: false },
+        sept2026: { jumlah: parseFloat(document.getElementById("sept2026").value) || 0, dahBayar: false },
+        okt2026: { jumlah: parseFloat(document.getElementById("okt2026").value) || 0, dahBayar: false },
+        nov2026: { jumlah: parseFloat(document.getElementById("nov2026").value) || 0, dahBayar: false },
+        dis2026: { jumlah: parseFloat(document.getElementById("dis2026").value) || 0, dahBayar: false },
     };
 
     if (!nama || !telefon || !emel || !statusJemaat || jumlahJanjiIman <= 0) {

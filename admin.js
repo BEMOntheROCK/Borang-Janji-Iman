@@ -35,6 +35,17 @@ const statPelawat = document.getElementById("stat-pelawat");
 
 let allRecords = [];
 
+// Each month in "ansuran" is stored as { jumlah, dahBayar }. These helpers
+// read that shape safely (older records are migrated via the migration
+// script, but we guard here too in case a record is ever missing a field).
+function getJumlah(month) {
+    if (month && typeof month === "object") return Number(month.jumlah || 0);
+    return Number(month || 0);
+}
+function isPaid(month) {
+    return !!(month && typeof month === "object" && month.dahBayar);
+}
+
 function showLoginAlert(message, type = "danger") {
     loginAlert.textContent = message;
     loginAlert.className = `alert alert-${type}`;
@@ -82,7 +93,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 async function loadRegistrationData() {
-    pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Sedang memuatkan data...</td></tr>`;
+    pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Sedang memuatkan data...</td></tr>`;
 
     try {
         const q = query(collection(db, "pendaftaran"), orderBy("createdAt", "desc"));
@@ -100,7 +111,7 @@ async function loadRegistrationData() {
         renderTable(allRecords);
     } catch (error) {
         console.error("Ralat memuatkan data:", error);
-        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Gagal memuatkan data.</td></tr>`;
     }
 }
 
@@ -124,7 +135,7 @@ function updateStatistics(records) {
 
 function renderTable(records) {
     if (records.length === 0) {
-        pendaftaranList.innerHTML = `<tr><td colspan="9" class="text-center">Tiada rekod ditemui.</td></tr>`;
+        pendaftaranList.innerHTML = `<tr><td colspan="10" class="text-center">Tiada rekod ditemui.</td></tr>`;
         return;
     }
 
@@ -146,10 +157,15 @@ function renderTable(records) {
         const totalRM = Number(data.jumlahJanjiIman || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 });
 
         const ans = data.ansuran || {};
-        const ansuranSummary = `Jul: ${ans.jul2026||0} | Ogos: ${ans.ogos2026||0} | Sept: ${ans.sept2026||0} | Okt: ${ans.okt2026||0} | Nov: ${ans.nov2026||0} | Dis: ${ans.dis2026||0}`;
+        const ansuranSummary = `Jul: ${getJumlah(ans.jul2026)} | Ogos: ${getJumlah(ans.ogos2026)} | Sept: ${getJumlah(ans.sept2026)} | Okt: ${getJumlah(ans.okt2026)} | Nov: ${getJumlah(ans.nov2026)} | Dis: ${getJumlah(ans.dis2026)}`;
         const resitBadge = data.perlukanResit
             ? `<span class="badge badge-warning">Perlu</span>`
             : `<span class="badge badge-secondary">Tidak</span>`;
+
+        const monthKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
+        const paidCount = monthKeys.filter(k => isPaid(ans[k])).length;
+        const bayaranBadgeClass = paidCount === 0 ? "badge-secondary" : (paidCount === monthKeys.length ? "badge-success" : "badge-warning");
+        const bayaranBadge = `<span class="badge ${bayaranBadgeClass}">${paidCount}/${monthKeys.length} Dibayar</span>`;
 
         tr.innerHTML = `
             <td>${index + 1}</td>
@@ -158,6 +174,7 @@ function renderTable(records) {
             <td><span class="badge ${badgeClass}">${escapeHtml(data.statusJemaat || "-")}</span></td>
             <td><strong>RM ${totalRM}</strong></td>
             <td><small>${ansuranSummary}</small></td>
+            <td>${bayaranBadge}</td>
             <td>${resitBadge}</td>
             <td>${dateFormatted}</td>
             <td>
@@ -219,12 +236,12 @@ function openEditModal(docId) {
     document.getElementById("edit-perlukanResit").checked = !!record.perlukanResit;
 
     const ans = record.ansuran || {};
-    document.getElementById("edit-jul2026").value = ans.jul2026 || "";
-    document.getElementById("edit-ogos2026").value = ans.ogos2026 || "";
-    document.getElementById("edit-sept2026").value = ans.sept2026 || "";
-    document.getElementById("edit-okt2026").value = ans.okt2026 || "";
-    document.getElementById("edit-nov2026").value = ans.nov2026 || "";
-    document.getElementById("edit-dis2026").value = ans.dis2026 || "";
+    document.getElementById("edit-jul2026").value = getJumlah(ans.jul2026) || "";
+    document.getElementById("edit-ogos2026").value = getJumlah(ans.ogos2026) || "";
+    document.getElementById("edit-sept2026").value = getJumlah(ans.sept2026) || "";
+    document.getElementById("edit-okt2026").value = getJumlah(ans.okt2026) || "";
+    document.getElementById("edit-nov2026").value = getJumlah(ans.nov2026) || "";
+    document.getElementById("edit-dis2026").value = getJumlah(ans.dis2026) || "";
 
     editModal.classList.remove("hidden");
 }
@@ -244,6 +261,8 @@ const viewCloseBtn = document.getElementById("view-close-btn");
 const viewEditBtn = document.getElementById("view-edit-btn");
 const viewResitBtn = document.getElementById("view-resit-btn");
 const viewDeleteBtn = document.getElementById("view-delete-btn");
+const bayaranSaveBtn = document.getElementById("bayaran-save-btn");
+const bayaranAlert = document.getElementById("bayaran-alert");
 
 let currentViewDocId = null;
 
@@ -271,12 +290,21 @@ function openViewModal(docId) {
     document.getElementById("view-jumlah").textContent = `RM ${totalRM}`;
     document.getElementById("view-resit").textContent = record.perlukanResit ? "Perlu" : "Tidak";
     document.getElementById("view-tarikh").textContent = dateFormatted;
-    document.getElementById("view-jul2026").textContent = `RM ${(ans.jul2026 || 0).toFixed(2)}`;
-    document.getElementById("view-ogos2026").textContent = `RM ${(ans.ogos2026 || 0).toFixed(2)}`;
-    document.getElementById("view-sept2026").textContent = `RM ${(ans.sept2026 || 0).toFixed(2)}`;
-    document.getElementById("view-okt2026").textContent = `RM ${(ans.okt2026 || 0).toFixed(2)}`;
-    document.getElementById("view-nov2026").textContent = `RM ${(ans.nov2026 || 0).toFixed(2)}`;
-    document.getElementById("view-dis2026").textContent = `RM ${(ans.dis2026 || 0).toFixed(2)}`;
+    document.getElementById("view-jul2026").textContent = `RM ${getJumlah(ans.jul2026).toFixed(2)}`;
+    document.getElementById("view-ogos2026").textContent = `RM ${getJumlah(ans.ogos2026).toFixed(2)}`;
+    document.getElementById("view-sept2026").textContent = `RM ${getJumlah(ans.sept2026).toFixed(2)}`;
+    document.getElementById("view-okt2026").textContent = `RM ${getJumlah(ans.okt2026).toFixed(2)}`;
+    document.getElementById("view-nov2026").textContent = `RM ${getJumlah(ans.nov2026).toFixed(2)}`;
+    document.getElementById("view-dis2026").textContent = `RM ${getJumlah(ans.dis2026).toFixed(2)}`;
+
+    // Payment-status checkboxes — ticked if that month has been marked paid
+    document.getElementById("bayar-jul2026").checked = isPaid(ans.jul2026);
+    document.getElementById("bayar-ogos2026").checked = isPaid(ans.ogos2026);
+    document.getElementById("bayar-sept2026").checked = isPaid(ans.sept2026);
+    document.getElementById("bayar-okt2026").checked = isPaid(ans.okt2026);
+    document.getElementById("bayar-nov2026").checked = isPaid(ans.nov2026);
+    document.getElementById("bayar-dis2026").checked = isPaid(ans.dis2026);
+    bayaranAlert.classList.add("hidden");
 
     viewModal.classList.remove("hidden");
 }
@@ -314,6 +342,44 @@ viewDeleteBtn.addEventListener("click", async () => {
             console.error("Ralat memadam:", err);
             alert("Ralat semasa memadam.");
         }
+    }
+});
+
+// "Simpan Status Bayaran" inside the view modal — save the paid/unpaid
+// checkboxes for each month, keeping the planned "jumlah" amount unchanged.
+bayaranSaveBtn.addEventListener("click", async () => {
+    if (!currentViewDocId) return;
+    const record = allRecords.find(r => r.id === currentViewDocId);
+    if (!record) return;
+
+    const ans = record.ansuran || {};
+    const monthKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
+    const updatedAnsuran = {};
+    monthKeys.forEach(key => {
+        updatedAnsuran[key] = {
+            jumlah: getJumlah(ans[key]),
+            dahBayar: document.getElementById(`bayar-${key}`).checked
+        };
+    });
+
+    bayaranSaveBtn.disabled = true;
+    bayaranSaveBtn.textContent = "Menyimpan...";
+
+    try {
+        await updateDoc(doc(db, "pendaftaran", currentViewDocId), { ansuran: updatedAnsuran });
+        record.ansuran = updatedAnsuran;
+        bayaranAlert.textContent = "Status bayaran berjaya disimpan.";
+        bayaranAlert.className = "alert alert-success";
+        bayaranAlert.classList.remove("hidden");
+        renderTable(allRecords);
+    } catch (err) {
+        console.error("Ralat menyimpan status bayaran:", err);
+        bayaranAlert.textContent = "Ralat semasa menyimpan status bayaran.";
+        bayaranAlert.className = "alert alert-danger";
+        bayaranAlert.classList.remove("hidden");
+    } finally {
+        bayaranSaveBtn.disabled = false;
+        bayaranSaveBtn.textContent = "Simpan Status Bayaran";
     }
 });
 
@@ -394,9 +460,10 @@ function generateResitPdf(record) {
     ];
 
     pdf.setFont("helvetica", "normal");
-    months.forEach(([label, amount]) => {
+    months.forEach(([label, month]) => {
         pdf.text(label, marginX, y);
-        pdf.text(`RM ${Number(amount || 0).toFixed(2)}`, marginX + 200, y);
+        pdf.text(`RM ${getJumlah(month).toFixed(2)}`, marginX + 200, y);
+        pdf.text(isPaid(month) ? "Dibayar" : "Belum Dibayar", marginX + 320, y);
         y += 20;
     });
 
@@ -422,13 +489,18 @@ editForm.addEventListener("submit", async (e) => {
     const jumlahJanjiIman = parseFloat(document.getElementById("edit-jumlah").value) || 0;
     const perlukanResit = document.getElementById("edit-perlukanResit").checked;
 
+    // Keep each month's existing "dahBayar" status untouched — this form only
+    // edits the planned amounts, not payment status (that's done from the
+    // view modal's payment checkboxes instead).
+    const existingRecord = allRecords.find(r => r.id === docId);
+    const existingAns = (existingRecord && existingRecord.ansuran) || {};
     const ansuran = {
-        jul2026: parseFloat(document.getElementById("edit-jul2026").value) || 0,
-        ogos2026: parseFloat(document.getElementById("edit-ogos2026").value) || 0,
-        sept2026: parseFloat(document.getElementById("edit-sept2026").value) || 0,
-        okt2026: parseFloat(document.getElementById("edit-okt2026").value) || 0,
-        nov2026: parseFloat(document.getElementById("edit-nov2026").value) || 0,
-        dis2026: parseFloat(document.getElementById("edit-dis2026").value) || 0,
+        jul2026: { jumlah: parseFloat(document.getElementById("edit-jul2026").value) || 0, dahBayar: isPaid(existingAns.jul2026) },
+        ogos2026: { jumlah: parseFloat(document.getElementById("edit-ogos2026").value) || 0, dahBayar: isPaid(existingAns.ogos2026) },
+        sept2026: { jumlah: parseFloat(document.getElementById("edit-sept2026").value) || 0, dahBayar: isPaid(existingAns.sept2026) },
+        okt2026: { jumlah: parseFloat(document.getElementById("edit-okt2026").value) || 0, dahBayar: isPaid(existingAns.okt2026) },
+        nov2026: { jumlah: parseFloat(document.getElementById("edit-nov2026").value) || 0, dahBayar: isPaid(existingAns.nov2026) },
+        dis2026: { jumlah: parseFloat(document.getElementById("edit-dis2026").value) || 0, dahBayar: isPaid(existingAns.dis2026) },
     };
 
     if (!nama || !telefon || !emel || !statusJemaat || jumlahJanjiIman <= 0) {
@@ -468,11 +540,13 @@ const exportCloseBtn = document.getElementById("export-close-btn");
 const exportPdfBtn = document.getElementById("export-pdf-btn");
 const exportXlsxBtn = document.getElementById("export-xlsx-btn");
 
-// Full column set (used for XLSX — one column per installment month)
+// Full column set (used for XLSX — one amount + one paid-status column per installment month)
 const EXPORT_COLUMNS_XLSX = [
     "Bil.", "No. Rujukan", "Nama Penuh", "No. Telefon", "Alamat E-mel", "Status",
-    "Jumlah Janji Iman (RM)", "Jul 2026", "Ogos 2026", "Sept 2026", "Okt 2026",
-    "Nov 2026", "Dis 2026", "Perlukan Resit", "Tarikh Daftar"
+    "Jumlah Janji Iman (RM)",
+    "Jul 2026", "Jul Dibayar?", "Ogos 2026", "Ogos Dibayar?", "Sept 2026", "Sept Dibayar?",
+    "Okt 2026", "Okt Dibayar?", "Nov 2026", "Nov Dibayar?", "Dis 2026", "Dis Dibayar?",
+    "Perlukan Resit", "Tarikh Daftar"
 ];
 
 // Condensed column set (used for PDF — installments combined into one column so it fits the page)
@@ -493,6 +567,7 @@ function formatDate(record) {
 function buildExportRowsXlsx() {
     return allRecords.map((record, index) => {
         const ans = record.ansuran || {};
+        const dibayarLabel = (month) => isPaid(month) ? "Ya" : "Tidak";
         return [
             index + 1,
             record.refNumber || record.id,
@@ -501,12 +576,12 @@ function buildExportRowsXlsx() {
             record.emel || "-",
             record.statusJemaat || "-",
             Number(record.jumlahJanjiIman || 0).toFixed(2),
-            Number(ans.jul2026 || 0).toFixed(2),
-            Number(ans.ogos2026 || 0).toFixed(2),
-            Number(ans.sept2026 || 0).toFixed(2),
-            Number(ans.okt2026 || 0).toFixed(2),
-            Number(ans.nov2026 || 0).toFixed(2),
-            Number(ans.dis2026 || 0).toFixed(2),
+            getJumlah(ans.jul2026).toFixed(2), dibayarLabel(ans.jul2026),
+            getJumlah(ans.ogos2026).toFixed(2), dibayarLabel(ans.ogos2026),
+            getJumlah(ans.sept2026).toFixed(2), dibayarLabel(ans.sept2026),
+            getJumlah(ans.okt2026).toFixed(2), dibayarLabel(ans.okt2026),
+            getJumlah(ans.nov2026).toFixed(2), dibayarLabel(ans.nov2026),
+            getJumlah(ans.dis2026).toFixed(2), dibayarLabel(ans.dis2026),
             record.perlukanResit ? "Perlu" : "Tidak",
             formatDate(record)
         ];
@@ -516,10 +591,12 @@ function buildExportRowsXlsx() {
 function buildExportRowsPdf() {
     return allRecords.map((record, index) => {
         const ans = record.ansuran || {};
+        // "*" marks a month as already paid, e.g. "Jul:500*"
+        const m = (month) => `${getJumlah(month).toFixed(0)}${isPaid(month) ? "*" : ""}`;
         const ansuranSummary =
-            `Jul:${Number(ans.jul2026 || 0).toFixed(0)} | Ogos:${Number(ans.ogos2026 || 0).toFixed(0)} | ` +
-            `Sept:${Number(ans.sept2026 || 0).toFixed(0)} | Okt:${Number(ans.okt2026 || 0).toFixed(0)} | ` +
-            `Nov:${Number(ans.nov2026 || 0).toFixed(0)} | Dis:${Number(ans.dis2026 || 0).toFixed(0)}`;
+            `Jul:${m(ans.jul2026)} | Ogos:${m(ans.ogos2026)} | ` +
+            `Sept:${m(ans.sept2026)} | Okt:${m(ans.okt2026)} | ` +
+            `Nov:${m(ans.nov2026)} | Dis:${m(ans.dis2026)}`;
 
         return [
             String(index + 1),
@@ -667,7 +744,7 @@ exportPdfBtn.addEventListener("click", () => {
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(9);
     pdf.setTextColor(100, 116, 139);
-    pdf.text(`Dijana pada: ${new Date().toLocaleDateString("ms-MY")}  |  Jumlah Rekod: ${allRecords.length}`, 30, 44);
+    pdf.text(`Dijana pada: ${new Date().toLocaleDateString("ms-MY")}  |  Jumlah Rekod: ${allRecords.length}  |  * = Sudah Dibayar`, 30, 44);
 
     drawPdfTable(pdf, EXPORT_COLUMNS_PDF, rows);
 
