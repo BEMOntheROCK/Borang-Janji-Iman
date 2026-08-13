@@ -169,10 +169,13 @@ function renderTable(records) {
         const pledgedMonths = monthKeys.filter(k => isPledged(ans[k]));
         const paidCount = pledgedMonths.filter(k => isPaid(ans[k])).length;
         const totalPledgedMonths = pledgedMonths.length;
+        const isFullyPaid = totalPledgedMonths > 0 && paidCount === totalPledgedMonths;
         const bayaranBadgeClass = totalPledgedMonths === 0
             ? "badge-secondary"
-            : (paidCount === 0 ? "badge-secondary" : (paidCount === totalPledgedMonths ? "badge-success" : "badge-warning"));
-        const bayaranBadge = `<span class="badge ${bayaranBadgeClass}">${paidCount}/${totalPledgedMonths} Dibayar</span>`;
+            : (paidCount === 0 ? "badge-secondary" : (isFullyPaid ? "badge-success" : "badge-warning"));
+        const bayaranBadge = isFullyPaid
+            ? `<span class="badge ${bayaranBadgeClass}">Selesai</span>`
+            : `<span class="badge ${bayaranBadgeClass}">${paidCount}/${totalPledgedMonths} Dibayar</span>`;
 
         tr.innerHTML = `
             <td>${index + 1}</td>
@@ -277,6 +280,7 @@ const viewEditBtn = document.getElementById("view-edit-btn");
 const viewResitBtn = document.getElementById("view-resit-btn");
 const viewDeleteBtn = document.getElementById("view-delete-btn");
 const bayaranSaveBtn = document.getElementById("bayaran-save-btn");
+const bayaranSelesaiBtn = document.getElementById("bayaran-selesai-btn");
 const bayaranAlert = document.getElementById("bayaran-alert");
 
 let currentViewDocId = null;
@@ -364,9 +368,10 @@ viewDeleteBtn.addEventListener("click", async () => {
     }
 });
 
-// "Simpan Status Bayaran" inside the view modal — save the paid/unpaid
-// checkboxes for each month, keeping the planned "jumlah" amount unchanged.
-bayaranSaveBtn.addEventListener("click", async () => {
+// Shared save logic used by both "Simpan Status Bayaran" (saves whatever
+// the checkboxes currently show) and "Tandakan Bayaran Selesai" (which
+// first ticks every pledged month, then calls this to save).
+async function saveBayaranStatus(triggerBtn, triggerBtnDefaultLabel) {
     if (!currentViewDocId) return;
     const record = allRecords.find(r => r.id === currentViewDocId);
     if (!record) return;
@@ -381,8 +386,8 @@ bayaranSaveBtn.addEventListener("click", async () => {
         };
     });
 
-    bayaranSaveBtn.disabled = true;
-    bayaranSaveBtn.textContent = "Menyimpan...";
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = "Menyimpan...";
 
     try {
         await updateDoc(doc(db, "pendaftaran", currentViewDocId), { ansuran: updatedAnsuran });
@@ -397,9 +402,35 @@ bayaranSaveBtn.addEventListener("click", async () => {
         bayaranAlert.className = "alert alert-danger";
         bayaranAlert.classList.remove("hidden");
     } finally {
-        bayaranSaveBtn.disabled = false;
-        bayaranSaveBtn.textContent = "Simpan Status Bayaran";
+        triggerBtn.disabled = false;
+        triggerBtn.textContent = triggerBtnDefaultLabel;
     }
+}
+
+// "Simpan Status Bayaran" inside the view modal — save the paid/unpaid
+// checkboxes for each month, keeping the planned "jumlah" amount unchanged.
+bayaranSaveBtn.addEventListener("click", () => {
+    saveBayaranStatus(bayaranSaveBtn, "Simpan Status Bayaran");
+});
+
+// "Tandakan Bayaran Selesai" — for donors who pay everything in one go
+// rather than spreading it across specific months. Ticks every pledged
+// month as paid, then saves immediately in one click.
+bayaranSelesaiBtn.addEventListener("click", () => {
+    if (!currentViewDocId) return;
+    const record = allRecords.find(r => r.id === currentViewDocId);
+    if (!record) return;
+
+    const ans = record.ansuran || {};
+    const monthKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
+    monthKeys.forEach(key => {
+        const checkbox = document.getElementById(`bayar-${key}`);
+        if (isPledged(ans[key])) {
+            checkbox.checked = true;
+        }
+    });
+
+    saveBayaranStatus(bayaranSelesaiBtn, "Tandakan Bayaran Selesai");
 });
 
 // "Resit" inside the view modal — export the donor's details as a PDF receipt
