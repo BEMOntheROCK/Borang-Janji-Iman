@@ -525,6 +525,17 @@ th { background-color: #f1f5f9; font-weight: 600; }
     cursor: pointer;
 }
 
+/* Greyed-out state for months a donor didn't pledge anything for
+   (no point letting admin mark a RM0 month as "paid") */
+.month-input-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.month-input-disabled input[type="checkbox"] {
+    cursor: not-allowed;
+}
+
 /* --- Cara Pembayaran / Bank / Hubungi --- */
 .payment-card .bank-details {
     background: #f8fafc;

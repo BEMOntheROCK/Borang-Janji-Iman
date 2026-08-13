@@ -45,6 +45,9 @@ function getJumlah(month) {
 function isPaid(month) {
     return !!(month && typeof month === "object" && month.dahBayar);
 }
+function isPledged(month) {
+    return getJumlah(month) > 0;
+}
 
 function showLoginAlert(message, type = "danger") {
     loginAlert.textContent = message;
@@ -163,9 +166,13 @@ function renderTable(records) {
             : `<span class="badge badge-secondary">Tidak</span>`;
 
         const monthKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
-        const paidCount = monthKeys.filter(k => isPaid(ans[k])).length;
-        const bayaranBadgeClass = paidCount === 0 ? "badge-secondary" : (paidCount === monthKeys.length ? "badge-success" : "badge-warning");
-        const bayaranBadge = `<span class="badge ${bayaranBadgeClass}">${paidCount}/${monthKeys.length} Dibayar</span>`;
+        const pledgedMonths = monthKeys.filter(k => isPledged(ans[k]));
+        const paidCount = pledgedMonths.filter(k => isPaid(ans[k])).length;
+        const totalPledgedMonths = pledgedMonths.length;
+        const bayaranBadgeClass = totalPledgedMonths === 0
+            ? "badge-secondary"
+            : (paidCount === 0 ? "badge-secondary" : (paidCount === totalPledgedMonths ? "badge-success" : "badge-warning"));
+        const bayaranBadge = `<span class="badge ${bayaranBadgeClass}">${paidCount}/${totalPledgedMonths} Dibayar</span>`;
 
         tr.innerHTML = `
             <td>${index + 1}</td>
@@ -297,13 +304,17 @@ function openViewModal(docId) {
     document.getElementById("view-nov2026").textContent = `RM ${getJumlah(ans.nov2026).toFixed(2)}`;
     document.getElementById("view-dis2026").textContent = `RM ${getJumlah(ans.dis2026).toFixed(2)}`;
 
-    // Payment-status checkboxes — ticked if that month has been marked paid
-    document.getElementById("bayar-jul2026").checked = isPaid(ans.jul2026);
-    document.getElementById("bayar-ogos2026").checked = isPaid(ans.ogos2026);
-    document.getElementById("bayar-sept2026").checked = isPaid(ans.sept2026);
-    document.getElementById("bayar-okt2026").checked = isPaid(ans.okt2026);
-    document.getElementById("bayar-nov2026").checked = isPaid(ans.nov2026);
-    document.getElementById("bayar-dis2026").checked = isPaid(ans.dis2026);
+    // Payment-status checkboxes — ticked if that month has been marked paid.
+    // Months the donor didn't actually pledge anything for (RM 0) are
+    // disabled/greyed out since there's nothing to mark as paid.
+    const monthCheckboxKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
+    monthCheckboxKeys.forEach(key => {
+        const checkbox = document.getElementById(`bayar-${key}`);
+        const pledged = isPledged(ans[key]);
+        checkbox.checked = pledged && isPaid(ans[key]);
+        checkbox.disabled = !pledged;
+        checkbox.closest(".checkbox-label").classList.toggle("month-input-disabled", !pledged);
+    });
     bayaranAlert.classList.add("hidden");
 
     viewModal.classList.remove("hidden");
