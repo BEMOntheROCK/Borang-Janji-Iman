@@ -457,6 +457,15 @@ body {
     color: var(--text-muted);
 }
 
+/* --- Card wrapper for "Status Bayaran Bulanan" in the view modal --- */
+.bayaran-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 8px;
+}
+
 .table-actions {
     display: flex;
     justify-content: space-between;
