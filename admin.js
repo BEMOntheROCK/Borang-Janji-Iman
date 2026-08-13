@@ -280,7 +280,6 @@ const viewEditBtn = document.getElementById("view-edit-btn");
 const viewResitBtn = document.getElementById("view-resit-btn");
 const viewDeleteBtn = document.getElementById("view-delete-btn");
 const bayaranSaveBtn = document.getElementById("bayaran-save-btn");
-const bayaranSelesaiBtn = document.getElementById("bayaran-selesai-btn");
 const bayaranAlert = document.getElementById("bayaran-alert");
 
 let currentViewDocId = null;
@@ -411,26 +410,6 @@ async function saveBayaranStatus(triggerBtn, triggerBtnDefaultLabel) {
 // checkboxes for each month, keeping the planned "jumlah" amount unchanged.
 bayaranSaveBtn.addEventListener("click", () => {
     saveBayaranStatus(bayaranSaveBtn, "Simpan Status Bayaran");
-});
-
-// "Tandakan Bayaran Selesai" — for donors who pay everything in one go
-// rather than spreading it across specific months. Ticks every pledged
-// month as paid, then saves immediately in one click.
-bayaranSelesaiBtn.addEventListener("click", () => {
-    if (!currentViewDocId) return;
-    const record = allRecords.find(r => r.id === currentViewDocId);
-    if (!record) return;
-
-    const ans = record.ansuran || {};
-    const monthKeys = ["jul2026", "ogos2026", "sept2026", "okt2026", "nov2026", "dis2026"];
-    monthKeys.forEach(key => {
-        const checkbox = document.getElementById(`bayar-${key}`);
-        if (isPledged(ans[key])) {
-            checkbox.checked = true;
-        }
-    });
-
-    saveBayaranStatus(bayaranSelesaiBtn, "Tandakan Bayaran Selesai");
 });
 
 // "Resit" inside the view modal — export the donor's details as a PDF receipt
