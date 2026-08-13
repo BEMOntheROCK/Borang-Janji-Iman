@@ -187,8 +187,11 @@
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" id="edit-cancel-btn" class="btn btn-secondary">Batal</button>
-                        <button type="submit" id="edit-save-btn" class="btn btn-primary">Simpan Perubahan</button>
+                        <button type="button" id="edit-cancel-btn" class="btn btn-secondary">Kembali</button>
+                        <button type="submit" id="edit-save-btn" class="btn btn-primary btn-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                            Simpan Perubahan
+                        </button>
                     </div>
                 </form>
             </div>
@@ -276,16 +279,31 @@
                         <label class="checkbox-label month-input"><input type="checkbox" id="bayar-nov2026"> NOV 2026</label>
                         <label class="checkbox-label month-input"><input type="checkbox" id="bayar-dis2026"> DIS 2026</label>
                     </div>
-                    <button type="button" id="bayaran-save-btn" class="btn btn-edit" style="margin-top: 12px; width: 100%;">Simpan Status Bayaran</button>
+                    <button type="button" id="bayaran-save-btn" class="btn btn-primary btn-icon" style="margin-top: 12px; width: 100%;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Simpan Status Bayaran
+                    </button>
                 </div>
 
                 <div class="modal-actions modal-actions-3">
-                    <button type="button" id="view-edit-btn" class="btn btn-edit">Kemas Kini</button>
-                    <button type="button" id="view-resit-btn" class="btn btn-resit">Resit</button>
-                    <button type="button" id="view-delete-btn" class="btn btn-delete">Padam</button>
+                    <button type="button" id="view-edit-btn" class="btn btn-edit btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+                        Kemas Kini
+                    </button>
+                    <button type="button" id="view-resit-btn" class="btn btn-resit btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-3-2-1 1Z"></path><line x1="8" y1="7" x2="16" y2="7"></line><line x1="8" y1="11" x2="16" y2="11"></line><line x1="8" y1="15" x2="12" y2="15"></line></svg>
+                        Resit
+                    </button>
+                    <button type="button" id="view-delete-btn" class="btn btn-delete btn-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
+                        Buang
+                    </button>
                 </div>
                 <div class="modal-close-link">
-                    <a href="#" id="view-close-btn">Tutup</a>
+                    <button type="button" id="view-close-btn" class="modal-close-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        Tutup Butiran
+                    </button>
                 </div>
             </div>
         </div>
@@ -293,4 +311,4 @@
 
     <script type="module" src="admin.js"></script>
 </body>
-</html> 
+</html>

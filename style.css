@@ -720,9 +720,49 @@ input[readonly] {
     background-color: #0f766e;
 }
 
+.btn-delete {
+    background-color: var(--danger-color);
+    color: #ffffff;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-icon svg {
+    flex-shrink: 0;
+}
+
 .modal-close-link {
     text-align: center;
     margin-top: 14px;
+}
+
+.modal-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius);
+    background-color: #e2e8f0;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background-color: #cbd5e1;
 }
 
 .modal-close-link a {

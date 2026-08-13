@@ -257,7 +257,15 @@ function closeEditModal() {
     editModal.classList.add("hidden");
 }
 
-editCancelBtn.addEventListener("click", closeEditModal);
+// "Kembali" — go back to the view modal for the same record instead of
+// closing everything, since edit is usually opened from within view.
+editCancelBtn.addEventListener("click", () => {
+    const docId = document.getElementById("edit-id").value;
+    closeEditModal();
+    if (docId) {
+        openViewModal(docId);
+    }
+});
 editModal.addEventListener("click", (e) => {
     if (e.target === editModal) closeEditModal();
 });
