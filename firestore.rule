@@ -11,5 +11,25 @@ service cloud.firestore {
       // Any signed-in Firebase Auth user can view, search, edit, or delete registrations
       allow read, update, delete: if request.auth != null;
     }
+
+    // Rules for the 'refCounters' collection — one document per day (e.g.
+    // "081326" for 13 Aug 2026), used to generate sequential reference
+    // numbers (OTR-JI-MMDD-YY-XX) for the public pledge form.
+    // Public users only ever increment this by exactly 1 per submission,
+    // so writes are locked down to that single safe operation.
+    match /refCounters/{dayId} {
+      allow read: if true;
+
+      // First submission of the day: creating the counter doc at seq = 1
+      allow create: if request.resource.data.keys().hasOnly(['seq'])
+                    && request.resource.data.seq == 1;
+
+      // Every following submission that day: seq must increase by exactly 1
+      allow update: if request.resource.data.keys().hasOnly(['seq'])
+                    && request.resource.data.seq == resource.data.seq + 1;
+
+      // Signed-in admins can also manage counters (e.g. via migration scripts)
+      allow read, write: if request.auth != null;
+    }
   }
 }

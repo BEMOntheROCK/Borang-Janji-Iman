@@ -1,13 +1,27 @@
 import { db } from "./firebase-config.js";
-import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Generate a random 12-digit reference number formatted as xxxx-xxxx-xxxx
-function generateRefNumber() {
-    let digits = "";
-    for (let i = 0; i < 12; i++) {
-        digits += Math.floor(Math.random() * 10);
-    }
-    return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+// Reference number format: OTR-JI-MMDD-YY-XX
+// MM/DD/YY come from today's date, XX is a sequential number (01, 02, 03...)
+// that resets to 01 at the start of each new day. The sequence is tracked
+// in a "refCounters" document (one per day, e.g. "081326" for 13 Aug 2026)
+// and incremented atomically inside a Firestore transaction together with
+// the record write, so two people submitting at the same moment can never
+// end up with the same reference number.
+
+function pad2(n) {
+    return String(n).padStart(2, "0");
+}
+
+// Malaysia is a fixed UTC+8 offset (no daylight saving), so this stays
+// correct regardless of the visitor's own device timezone/clock settings.
+function getMalaysiaDateParts() {
+    const nowUtcMs = Date.now();
+    const myTime = new Date(nowUtcMs + 8 * 60 * 60 * 1000);
+    const MM = pad2(myTime.getUTCMonth() + 1);
+    const DD = pad2(myTime.getUTCDate());
+    const YY = pad2(myTime.getUTCFullYear() % 100);
+    return { MM, DD, YY, dayKey: `${MM}${DD}${YY}` };
 }
 
 // DOM Elements
@@ -84,41 +98,33 @@ form.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Sedang Dihantar...";
 
     try {
+        const { MM, DD, YY, dayKey } = getMalaysiaDateParts();
+        const counterRef = doc(db, "refCounters", dayKey);
         let refNumber;
-        let saved = false;
-        let lastError = null;
 
-        // Try a few times in the extremely unlikely event of a collision.
-        // Firestore's security rules only allow "create" (not "update") for
-        // public writes, so setDoc on an existing refNumber is rejected
-        // automatically — this enforces uniqueness without needing read access.
-        for (let attempt = 0; attempt < 5 && !saved; attempt++) {
-            refNumber = generateRefNumber();
-            try {
-                await setDoc(doc(db, "pendaftaran", refNumber), {
-                    refNumber: refNumber,
-                    nama: nama,
-                    telefon: telefon,
-                    emel: emel,
-                    statusJemaat: statusJemaat,
-                    jumlahJanjiIman: jumlahJanjiIman,
-                    perlukanResit: perlukanResit,
-                    ansuran: ansuran,
-                    createdAt: serverTimestamp()
-                });
-                saved = true;
-            } catch (err) {
-                lastError = err;
-                if (err.code !== "permission-denied") {
-                    throw err;
-                }
-                // permission-denied here means the ID already exists — retry with a new number
-            }
-        }
+        // Atomically read-then-increment today's counter and create the
+        // record in one transaction, so two simultaneous submissions can
+        // never end up with the same sequence number / reference number.
+        await runTransaction(db, async (transaction) => {
+            const counterSnap = await transaction.get(counterRef);
+            const nextSeq = counterSnap.exists() ? counterSnap.data().seq + 1 : 1;
+            refNumber = `OTR-JI-${MM}${DD}-${YY}-${pad2(nextSeq)}`;
 
-        if (!saved) {
-            throw lastError || new Error("Gagal menjana nombor rujukan yang unik.");
-        }
+            const pendaftaranRef = doc(db, "pendaftaran", refNumber);
+
+            transaction.set(counterRef, { seq: nextSeq });
+            transaction.set(pendaftaranRef, {
+                refNumber: refNumber,
+                nama: nama,
+                telefon: telefon,
+                emel: emel,
+                statusJemaat: statusJemaat,
+                jumlahJanjiIman: jumlahJanjiIman,
+                perlukanResit: perlukanResit,
+                ansuran: ansuran,
+                createdAt: serverTimestamp()
+            });
+        });
 
         showAlert(`Borang Janji Iman anda telah berjaya dihantar! Nombor rujukan anda: ${refNumber}. Terima kasih atas sokongan anda.`, "success");
         form.reset();
